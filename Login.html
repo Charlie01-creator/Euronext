@@ -6,8 +6,221 @@
 <title>Log In — Euronext</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
+/* ===== ICON SYSTEM (inlined) ===== */
+/* ==========================================================================
+   ICON SYSTEM — reusable, premium fintech icon components
+   Drop icon-system.css + icon-system.js into any page. Markup pattern:
+
+     <span class="icon-orb icon-orb--md" data-magnetic data-tip="Label">
+       <i class="fa-solid fa-house"></i>
+     </span>
+
+   Modifiers:
+     size:      icon-orb--xs | icon-orb--sm | icon-orb--md | icon-orb--lg
+     glow:      icon-glow-blue | icon-glow-green | icon-glow-amber | icon-glow-red
+     state:     icon-orb--active (persistent glow, for current nav item)
+     data-*:    data-magnetic (cursor-follow), data-float (idle bob),
+                data-pulse (on the <i>, for notification badges),
+                data-tip="Text" (hover tooltip), data-badge="3" (count pill),
+                data-burst="success|gold|error" (particle burst on click)
+   ========================================================================== */
+
+:root{
+  --icon-glass-bg: rgba(255,255,255,0.045);
+  --icon-glass-border: rgba(255,255,255,0.10);
+  --icon-glass-border-hover: rgba(255,255,255,0.22);
+  --icon-shadow: 0 4px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+  --icon-blue: #3B82F6;
+  --icon-green: #10B981;
+  --icon-amber: #F59E0B;
+  --icon-red: #EF4444;
+  --icon-transition: 220ms cubic-bezier(.2,.8,.2,1);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .icon-orb, .icon-orb *, [data-float], [data-pulse]{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* ── Base orb ─────────────────────────────────────────────────────────── */
+.icon-orb{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: rgba(255,255,255,0.75);
+  background: var(--icon-glass-bg);
+  border: 1px solid var(--icon-glass-border);
+  box-shadow: var(--icon-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform var(--icon-transition), background var(--icon-transition),
+              border-color var(--icon-transition), box-shadow var(--icon-transition), color var(--icon-transition);
+  will-change: transform;
+}
+.icon-orb i{ font-size: 16px; line-height: 1; transition: transform var(--icon-transition); pointer-events:none; }
+
+/* size scale */
+.icon-orb--xs{ width: 30px; height: 30px; border-radius: 9px; } .icon-orb--xs i{ font-size: 12.5px; }
+.icon-orb--sm{ width: 38px; height: 38px; border-radius: 11px; } .icon-orb--sm i{ font-size: 15px; }
+.icon-orb--md{ width: 46px; height: 46px; border-radius: 13px; } .icon-orb--md i{ font-size: 17px; }
+.icon-orb--lg{ width: 58px; height: 58px; border-radius: 16px; } .icon-orb--lg i{ font-size: 22px; }
+
+/* ── Hover & interaction states ───────────────────────────────────────── */
+.icon-orb:hover{
+  transform: translateY(-3px) scale(1.07);
+  color: #fff;
+  border-color: var(--icon-glass-border-hover);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.icon-orb:hover i{ transform: scale(1.1) rotate(-4deg); }
+.icon-orb:active{ transform: translateY(-1px) scale(0.96); transition-duration: 80ms; }
+.icon-orb:focus-visible{ outline: 2px solid var(--icon-blue); outline-offset: 2px; }
+
+/* magnetic hover — JS sets --mx/--my per-pixel offset */
+.icon-orb[data-magnetic]{ transform: translate(var(--mx, 0), var(--my, 0)); }
+.icon-orb[data-magnetic]:hover{ transform: translate(var(--mx, 0), var(--my, 0)) translateY(-3px) scale(1.07); }
+
+/* active / current nav item — persistent glow */
+.icon-orb--active{
+  color: #fff;
+  border-color: rgba(59,130,246,0.5);
+  background: rgba(59,130,246,0.14);
+  box-shadow: 0 0 0 1px rgba(59,130,246,0.3), 0 0 22px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.icon-orb--active::after{
+  content:'';
+  position:absolute; inset:-1px;
+  border-radius: inherit;
+  border: 1px solid rgba(59,130,246,0.6);
+  animation: activeRing 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes activeRing{
+  0%,100%{ opacity:.55; transform: scale(1); }
+  50%{ opacity:0; transform: scale(1.18); }
+}
+
+/* ── Semantic glow variants (success / warning / error) ──────────────── */
+.icon-glow-blue{ color: var(--icon-blue); border-color: rgba(59,130,246,0.35); box-shadow: 0 0 16px rgba(59,130,246,0.28), var(--icon-shadow); }
+.icon-glow-green{ color: var(--icon-green); border-color: rgba(16,185,129,0.4); box-shadow: 0 0 18px rgba(16,185,129,0.35), var(--icon-shadow); animation: glowPulseGreen 2.2s ease-in-out infinite; }
+.icon-glow-amber{ color: var(--icon-amber); border-color: rgba(245,158,11,0.4); box-shadow: 0 0 18px rgba(245,158,11,0.35), var(--icon-shadow); animation: glowPulseAmber 2.2s ease-in-out infinite; }
+.icon-glow-red{ color: var(--icon-red); border-color: rgba(239,68,68,0.4); box-shadow: 0 0 18px rgba(239,68,68,0.35), var(--icon-shadow); animation: glowPulseRed 1.6s ease-in-out infinite; }
+
+@keyframes glowPulseGreen{ 0%,100%{ box-shadow:0 0 14px rgba(16,185,129,0.3), var(--icon-shadow);} 50%{ box-shadow:0 0 26px rgba(16,185,129,0.5), var(--icon-shadow);} }
+@keyframes glowPulseAmber{ 0%,100%{ box-shadow:0 0 14px rgba(245,158,11,0.3), var(--icon-shadow);} 50%{ box-shadow:0 0 26px rgba(245,158,11,0.5), var(--icon-shadow);} }
+@keyframes glowPulseRed{ 0%,100%{ box-shadow:0 0 14px rgba(239,68,68,0.35), var(--icon-shadow);} 50%{ box-shadow:0 0 28px rgba(239,68,68,0.6), var(--icon-shadow);} }
+
+/* ── Idle floating animation ──────────────────────────────────────────── */
+[data-float]{ animation: iconFloat 4.5s ease-in-out infinite; }
+[data-float]:nth-child(odd){ animation-delay: -1.6s; }
+[data-float]:nth-child(3n){ animation-delay: -3s; }
+@keyframes iconFloat{
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-5px); }
+}
+.icon-orb[data-magnetic][data-float]{ animation: none; } /* magnetic transform takes priority to avoid transform fights */
+
+/* ── Notification pulse (on the <i> itself, e.g. bell) ────────────────── */
+[data-pulse]{ animation: iconPulse 1.8s ease-in-out infinite; transform-origin: 50% 40%; }
+@keyframes iconPulse{
+  0%,100%{ transform: scale(1) rotate(0); }
+  10%{ transform: scale(1.08) rotate(-8deg); }
+  20%{ transform: scale(1.08) rotate(8deg); }
+  30%{ transform: scale(1.04) rotate(-4deg); }
+  40%{ transform: scale(1) rotate(0); }
+}
+
+/* ── Loading spin ─────────────────────────────────────────────────────── */
+.icon-spin{ animation: iconSpin 0.8s linear infinite; }
+@keyframes iconSpin{ to{ transform: rotate(360deg); } }
+
+/* ── Bounce (achievements / rewards) ──────────────────────────────────── */
+.icon-bounce{ animation: iconBounce 0.9s cubic-bezier(.28,1.4,.5,1) 1; }
+@keyframes iconBounce{
+  0%{ transform: scale(1) translateY(0); }
+  30%{ transform: scale(1.25) translateY(-10px); }
+  50%{ transform: scale(0.92) translateY(2px); }
+  70%{ transform: scale(1.08) translateY(-4px); }
+  100%{ transform: scale(1) translateY(0); }
+}
+
+/* ── Ripple on click ──────────────────────────────────────────────────── */
+.icon-ripple{
+  position:absolute;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 70%);
+  transform: scale(0);
+  pointer-events:none;
+  animation: rippleOut 650ms ease-out forwards;
+}
+@keyframes rippleOut{
+  0%{ transform: scale(0); opacity: .55; }
+  100%{ transform: scale(2.6); opacity: 0; }
+}
+
+/* ── Badge (unread count) ─────────────────────────────────────────────── */
+.icon-orb[data-badge]::before{
+  content: attr(data-badge);
+  position:absolute; top:-6px; right:-6px;
+  min-width:16px; height:16px; padding:0 4px;
+  border-radius:100px;
+  background: var(--icon-red);
+  color:#fff; font-family:'DM Mono',monospace; font-size:10px; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 0 0 2px rgba(10,11,15,0.9), 0 0 10px rgba(239,68,68,0.6);
+  animation: badgePop 2.6s ease-in-out infinite;
+}
+@keyframes badgePop{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.15);} }
+
+/* ── Tooltip ──────────────────────────────────────────────────────────── */
+.icon-orb[data-tip]{ position:relative; }
+.icon-orb[data-tip]::after{
+  content: attr(data-tip);
+  position:absolute; bottom: calc(100% + 10px); left:50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(15,17,24,0.96);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff; font-family:'DM Sans',sans-serif; font-size:11.5px; font-weight:500;
+  padding: 5px 10px; border-radius: 7px; white-space: nowrap;
+  opacity:0; pointer-events:none;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 20;
+}
+.icon-orb[data-tip]:hover::after{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+/* ── Icon dock (dashboard nav strip) ──────────────────────────────────── */
+.icon-dock{
+  display:flex; flex-wrap:wrap; gap:10px;
+  padding:16px; border-radius:18px;
+  background: rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(18px);
+}
+
+/* ── Particle burst (spawned by icon-system.js) ──────────────────────── */
+#particleLayer{ position:fixed; inset:0; pointer-events:none; z-index:9999; }
+.icon-particle{
+  position:absolute; width:5px; height:5px; border-radius:50%;
+  animation: particleFly 750ms cubic-bezier(.15,.6,.3,1) forwards;
+}
+@keyframes particleFly{
+  0%{ transform: translate(0,0) scale(1); opacity:1; }
+  100%{ transform: translate(var(--px), var(--py)) scale(0); opacity:0; }
+}
+
+/* ===== END ICON SYSTEM ===== */
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --black:#060608;--bg:#0A0B0F;--surface:#12141C;--surface2:#191C27;--surface3:#1F2330;
@@ -20,7 +233,7 @@
   --airtel:#E40C0C;--airtel-dim:rgba(228,12,12,0.1);
   --white:#FFFFFF;--white-80:rgba(255,255,255,0.8);--white-60:rgba(255,255,255,0.6);
   --white-40:rgba(255,255,255,0.4);--white-10:rgba(255,255,255,0.1);--white-05:rgba(255,255,255,0.05);
-  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+  --font-display:'Inter',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--font-body);background:var(--black);color:var(--white-80);min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column}
@@ -66,10 +279,9 @@ button{cursor:pointer;border:none;background:none;font:inherit}
 
 /* security info card */
 .security-card{padding:22px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(20px)}
-.security-card-title{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--white);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.security-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--white-60);padding:8px 0;border-bottom:1px solid var(--border)}
+.security-card-title{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--white);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.security-item{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--white-60);padding:9px 0;border-bottom:1px solid var(--border)}
 .security-item:last-child{border:none}
-.security-item-icon{width:26px;height:26px;border-radius:7px;background:var(--green-glow);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
 
 /* ── Right panel — form ──────────────────────────────── */
 .form-col{display:flex;align-items:center;justify-content:center}
@@ -93,8 +305,9 @@ button{cursor:pointer;border:none;background:none;font:inherit}
 .field-row{display:flex;justify-content:space-between;align-items:center}
 .field label{font-size:11.5px;font-weight:600;color:var(--white-60);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.07em}
 .input-wrap{position:relative}
-.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;z-index:1;line-height:1}
-.field input{width:100%;padding:13px 14px 13px 42px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:var(--font-body);font-size:14.5px;transition:all .2s ease}
+.field input{width:100%;padding:13px 14px 13px 52px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:var(--font-body);font-size:14.5px;transition:all .2s ease}
+.input-wrap .input-icon-orb{position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:1;width:28px;height:28px;border-radius:8px;font-size:12px}
+.input-wrap:focus-within .input-icon-orb{color:var(--blue);border-color:rgba(59,130,246,0.35);box-shadow:0 0 0 3px var(--blue-dim),inset 0 1px 0 rgba(255,255,255,0.08)}
 .field input::placeholder{color:var(--white-40)}
 .field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-dim);background:var(--surface)}
 .field input:valid:not(:placeholder-shown){border-color:rgba(16,185,129,0.4)}
@@ -103,8 +316,8 @@ button{cursor:pointer;border:none;background:none;font:inherit}
 .error-msg{font-size:12px;color:var(--red);display:none;margin-top:2px}
 
 /* phone prefix */
-.phone-prefix{position:absolute;left:42px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:13px;color:var(--white-60);pointer-events:none;letter-spacing:.02em;z-index:2}
-.field input.has-prefix{padding-left:90px}
+.phone-prefix{position:absolute;left:52px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:13px;color:var(--white-60);pointer-events:none;letter-spacing:.02em;z-index:2}
+.field input.has-prefix{padding-left:100px}
 
 /* carrier pill */
 .carrier-pill{display:none;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;font-family:var(--font-mono);font-size:11px;font-weight:600;margin-top:5px;width:fit-content}
@@ -217,23 +430,42 @@ button{cursor:pointer;border:none;background:none;font:inherit}
     </div>
 
     <div class="security-card fade-up d2">
-      <div class="security-card-title">🔐 How your account is protected</div>
+      <div class="security-card-title">
+        <span class="icon-orb icon-orb--sm icon-glow-blue" data-float data-magnetic><i class="fa-solid fa-shield-halved"></i></span>
+        How your account is protected
+      </div>
       <div class="security-item">
-        <div class="security-item-icon">👤</div>
+        <span class="icon-orb icon-orb--xs" data-magnetic><i class="fa-solid fa-user"></i></span>
         <span>Full name must match exactly as registered</span>
       </div>
       <div class="security-item">
-        <div class="security-item-icon">📱</div>
+        <span class="icon-orb icon-orb--xs" data-magnetic><i class="fa-solid fa-mobile-screen-button"></i></span>
         <span>MTN or Airtel Uganda number required</span>
       </div>
       <div class="security-item">
-        <div class="security-item-icon">🔒</div>
+        <span class="icon-orb icon-orb--xs" data-magnetic><i class="fa-solid fa-lock"></i></span>
         <span>Password encrypted with bank-grade security</span>
       </div>
       <div class="security-item">
-        <div class="security-item-icon">🛡️</div>
+        <span class="icon-orb icon-orb--xs" data-magnetic><i class="fa-solid fa-fingerprint"></i></span>
         <span>Three-factor verification on every login</span>
       </div>
+    </div>
+
+    <!-- Reusable dashboard icon dock — same components used across the platform -->
+    <div class="icon-dock fade-up d3" aria-label="Platform sections">
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Home"><i class="fa-solid fa-house"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Analytics"><i class="fa-solid fa-chart-line"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Investments"><i class="fa-solid fa-sack-dollar"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Wallet"><i class="fa-solid fa-wallet"></i></button>
+      <button class="icon-orb icon-orb--md icon-orb--active" data-magnetic data-tip="Security"><i class="fa-solid fa-shield-halved"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-badge="3" data-tip="Notifications"><i class="fa-solid fa-bell" data-pulse></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Settings"><i class="fa-solid fa-gear"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Profile"><i class="fa-solid fa-user"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Referrals"><i class="fa-solid fa-users"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Transactions"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Rewards" data-burst="gold"><i class="fa-solid fa-trophy"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Support"><i class="fa-solid fa-headset"></i></button>
     </div>
   </div>
 
@@ -257,7 +489,7 @@ button{cursor:pointer;border:none;background:none;font:inherit}
 
         <!-- Alert -->
         <div class="alert-box" id="alertBox">
-          <span id="alertIcon">⚠️</span>
+          <span class="icon-orb icon-orb--xs" id="alertIconWrap"><i class="fa-solid fa-triangle-exclamation" id="alertIcon"></i></span>
           <span id="alertText"></span>
         </div>
 
@@ -265,7 +497,7 @@ button{cursor:pointer;border:none;background:none;font:inherit}
         <div class="field" id="nameField">
           <label for="nameInput">Full Name</label>
           <div class="input-wrap">
-            <span class="input-icon">👤</span>
+            <span class="icon-orb icon-orb--xs input-icon-orb" data-magnetic><i class="fa-solid fa-user"></i></span>
             <input
               type="text"
               id="nameInput"
@@ -283,7 +515,7 @@ button{cursor:pointer;border:none;background:none;font:inherit}
         <div class="field" id="phoneField">
           <label for="phoneInput">MTN / Airtel Phone Number</label>
           <div class="input-wrap">
-            <span class="input-icon">📱</span>
+            <span class="icon-orb icon-orb--xs input-icon-orb" data-magnetic><i class="fa-solid fa-mobile-screen-button"></i></span>
             <span class="phone-prefix">+256</span>
             <input
               type="tel"
@@ -311,14 +543,14 @@ button{cursor:pointer;border:none;background:none;font:inherit}
             <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
           </div>
           <div class="input-wrap">
-            <span class="input-icon">🔒</span>
+            <span class="icon-orb icon-orb--xs input-icon-orb" data-magnetic><i class="fa-solid fa-lock"></i></span>
             <input
               type="password"
               id="passwordInput"
               placeholder="Enter your password"
               autocomplete="current-password"
             >
-            <button type="button" class="toggle-pw" id="togglePw">SHOW</button>
+            <button type="button" class="toggle-pw" id="togglePw"><i class="fa-solid fa-eye"></i></button>
           </div>
           <span class="error-msg" id="passwordError">Please enter your password</span>
         </div>
@@ -332,14 +564,15 @@ button{cursor:pointer;border:none;background:none;font:inherit}
         <!-- Submit -->
         <button class="submit-btn" id="submitBtn" onclick="handleLogin()">
           <span class="spinner" id="spinner"></span>
-          <span id="btnText">Sign In →</span>
+          <span id="btnText">Sign In</span>
+          <i class="fa-solid fa-arrow-right" id="btnArrow"></i>
         </button>
 
         <div class="divider">OR CONTINUE WITH</div>
 
         <div class="social-row">
-          <button class="social-btn" type="button">🔵 Google</button>
-          <button class="social-btn" type="button"> Apple</button>
+          <button class="social-btn" type="button"><i class="fa-brands fa-google"></i> Google</button>
+          <button class="social-btn" type="button"><i class="fa-brands fa-apple"></i> Apple</button>
         </div>
 
       </div>
@@ -360,7 +593,7 @@ button{cursor:pointer;border:none;background:none;font:inherit}
         <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--white);margin-bottom:5px">Reset your password</div>
         <div style="font-size:13px;color:var(--white-60);line-height:1.6">Enter your registered phone number. A reset link will be sent to the email on your account.</div>
       </div>
-      <button onclick="closeForgot()" style="color:var(--white-40);font-size:20px;line-height:1;cursor:pointer;background:none;border:none;transition:color .15s" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">✕</button>
+      <button class="icon-orb icon-orb--xs" onclick="closeForgot()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div id="forgotForm">
       <div style="font-family:var(--font-mono);font-size:11px;color:var(--white-60);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Your registered phone number</div>
@@ -376,16 +609,131 @@ button{cursor:pointer;border:none;background:none;font:inherit}
         >
       </div>
       <span id="forgotPhoneError" style="font-size:12px;color:var(--red);display:none;margin-bottom:10px;display:block">Enter a valid MTN or Airtel Uganda number</span>
-      <button onclick="submitForgot()" style="width:100%;padding:13px;border-radius:10px;font-family:var(--font-display);font-size:14px;font-weight:700;background:var(--blue);color:#fff;border:none;cursor:pointer;box-shadow:0 0 20px var(--blue-glow);transition:background .2s" onmouseover="this.style.background='#60A5FA'" onmouseout="this.style.background='var(--blue)'">Send Reset Link →</button>
+      <button onclick="submitForgot()" style="width:100%;padding:13px;border-radius:10px;font-family:var(--font-display);font-size:14px;font-weight:700;background:var(--blue);color:#fff;border:none;cursor:pointer;box-shadow:0 0 20px var(--blue-glow);transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.background='#60A5FA'" onmouseout="this.style.background='var(--blue)'">Send Reset Link <i class="fa-solid fa-arrow-right"></i></button>
     </div>
     <div id="forgotSuccess" style="display:none;text-align:center;padding:16px;background:var(--green-glow);border:1px solid rgba(16,185,129,0.25);border-radius:12px">
-      <div style="font-size:26px;margin-bottom:8px">✅</div>
+      <span class="icon-orb icon-orb--sm icon-glow-green" style="margin:0 auto 8px"><i class="fa-solid fa-circle-check"></i></span>
       <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px">Check your email</div>
       <div style="font-size:12.5px;color:var(--green);line-height:1.6">A password reset link has been sent to the email registered with this number.</div>
     </div>
   </div>
 </div>
 
+<!-- Particle burst layer -->
+<div id="particleLayer"></div>
+
+<script>
+/* ==========================================================================
+   ICON SYSTEM — behavior layer
+   Pairs with icon-system.css. Auto-initializes on DOMContentLoaded, and
+   exposes window.IconSystem for manual triggers (e.g. after an async action).
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  const MAGNET_STRENGTH = 0.28;   // 0–1, how far the icon follows the cursor
+  const MAGNET_RADIUS = 60;       // px, distance at which the pull begins
+
+  function initMagnetic() {
+    const icons = document.querySelectorAll('.icon-orb[data-magnetic]');
+    icons.forEach((el) => {
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        if (dist > MAGNET_RADIUS) return;
+        el.style.setProperty('--mx', `${dx * MAGNET_STRENGTH}px`);
+        el.style.setProperty('--my', `${dy * MAGNET_STRENGTH}px`);
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.setProperty('--mx', '0px');
+        el.style.setProperty('--my', '0px');
+      });
+    });
+  }
+
+  function initRipple() {
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('.icon-orb');
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      const size = Math.max(rect.width, rect.height);
+      ripple.className = 'icon-ripple';
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+      ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+      el.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+
+      // optional data-burst trigger
+      if (el.dataset.burst) burst(el, el.dataset.burst);
+    });
+  }
+
+  function ensureParticleLayer() {
+    let layer = document.getElementById('particleLayer');
+    if (!layer) {
+      layer = document.createElement('div');
+      layer.id = 'particleLayer';
+      document.body.appendChild(layer);
+    }
+    return layer;
+  }
+
+  const BURST_COLORS = {
+    success: ['#10B981', '#34D399', '#6EE7B7'],
+    green:   ['#10B981', '#34D399', '#6EE7B7'],
+    gold:    ['#F59E0B', '#FBBF24', '#FDE68A'],
+    amber:   ['#F59E0B', '#FBBF24', '#FDE68A'],
+    error:   ['#EF4444', '#F87171', '#FCA5A5'],
+    red:     ['#EF4444', '#F87171', '#FCA5A5'],
+    blue:    ['#3B82F6', '#60A5FA', '#93C5FD'],
+  };
+
+  function burst(originEl, kind = 'blue', count = 14) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = BURST_COLORS[kind] || BURST_COLORS.blue;
+    const layer = ensureParticleLayer();
+
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('span');
+      p.className = 'icon-particle';
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+      const dist = 40 + Math.random() * 50;
+      p.style.setProperty('--px', `${Math.cos(angle) * dist}px`);
+      p.style.setProperty('--py', `${Math.sin(angle) * dist}px`);
+      p.style.left = `${cx}px`;
+      p.style.top = `${cy}px`;
+      p.style.background = colors[i % colors.length];
+      p.style.boxShadow = `0 0 6px ${colors[i % colors.length]}`;
+      layer.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+
+  function triggerBounce(el) {
+    el.classList.remove('icon-bounce');
+    // force reflow so the animation can restart
+    void el.offsetWidth;
+    el.classList.add('icon-bounce');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initMagnetic();
+    initRipple();
+  });
+
+  window.IconSystem = { burst, bounce: triggerBounce };
+})();
+
+</script>
 <script>
 const API_BASE = 'http://localhost:3000/api/v1';
 
@@ -430,7 +778,7 @@ phoneInput.addEventListener('input', () => {
     const carrier = detectCarrier(normalisePhone(raw));
     if (carrier) {
       carrierPill.className = 'carrier-pill show ' + carrier.toLowerCase();
-      carrierLabel.textContent = carrier + ' Uganda ✓';
+      carrierLabel.innerHTML = carrier + ' Uganda <i class="fa-solid fa-circle-check"></i>';
     } else {
       carrierPill.className = 'carrier-pill';
     }
@@ -440,18 +788,22 @@ phoneInput.addEventListener('input', () => {
 });
 
 // ── Password visibility ───────────────────────────────────────────────────────
-document.getElementById('togglePw').addEventListener('click', () => {
+document.getElementById('togglePw').addEventListener('click', function() {
   const input = document.getElementById('passwordInput');
-  const btn   = document.getElementById('togglePw');
-  input.type  = input.type === 'password' ? 'text' : 'password';
-  btn.textContent = input.type === 'password' ? 'SHOW' : 'HIDE';
+  const icon  = this.querySelector('i');
+  const showing = input.type === 'password';
+  input.type = showing ? 'text' : 'password';
+  icon.className = showing ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
 });
 
 // ── Alert helpers ─────────────────────────────────────────────────────────────
 function showAlert(type, msg) {
   const box = document.getElementById('alertBox');
   document.getElementById('alertText').textContent = msg;
-  document.getElementById('alertIcon').textContent = type === 'error' ? '⚠️' : '✅';
+  const icon = document.getElementById('alertIcon');
+  const iconWrap = document.getElementById('alertIconWrap');
+  icon.className = type === 'error' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+  iconWrap.className = 'icon-orb icon-orb--xs ' + (type === 'error' ? 'icon-glow-red' : 'icon-glow-green');
   box.className = 'alert-box show ' + type;
 }
 function clearAlert() {
@@ -524,7 +876,6 @@ async function handleLogin() {
     setLoading(false);
 
     if (!res.ok) {
-      // Generic message — don't tell attacker which field was wrong
       const msg = res.status === 401
         ? 'The name, phone number, or password is incorrect. Please check and try again.'
         : res.status === 403
@@ -534,17 +885,14 @@ async function handleLogin() {
       showAlert('error', msg);
 
       if (res.status === 401) {
-        // Highlight all three fields — don't reveal which one was wrong
         ['nameField','phoneField','passwordField'].forEach(id => {
           document.getElementById(id).classList.add('error');
         });
-        // Clear password only
         document.getElementById('passwordInput').value = '';
       }
       return;
     }
 
-    // Success
     const { accessToken, user } = json.data;
     try {
       localStorage.setItem('nexus_user_name',  user.fullName);
@@ -552,17 +900,10 @@ async function handleLogin() {
       localStorage.setItem('nexus_access_token', accessToken);
     } catch(e) { /* storage unavailable */ }
 
-    const btn = document.getElementById('submitBtn');
-    btn.style.background = 'var(--green)';
-    btn.style.boxShadow  = '0 0 24px var(--green-glow)';
-    document.getElementById('btnText').textContent = '✓ Signed in — Redirecting…';
-    showAlert('success', `Welcome back, ${user.fullName.split(' ')[0]}!`);
-
-    setTimeout(() => { window.location.href = 'nexus-dashboard.html'; }, 900);
+    onLoginSuccess(user.fullName);
 
   } catch(err) {
     setLoading(false);
-    // No backend — demo mode
     demoLogin(fullName);
   }
 }
@@ -572,16 +913,24 @@ function demoLogin(fullName) {
     localStorage.setItem('nexus_user_name', fullName);
     localStorage.setItem('nexus_access_token', 'demo-token');
   } catch(e) {}
+  onLoginSuccess(fullName);
+}
+
+function onLoginSuccess(fullName) {
   const btn = document.getElementById('submitBtn');
   btn.style.background = 'var(--green)';
-  document.getElementById('btnText').textContent = '✓ Signed in — Redirecting…';
+  btn.style.boxShadow  = '0 0 24px var(--green-glow)';
+  document.getElementById('btnText').textContent = 'Signed in — Redirecting…';
+  document.getElementById('btnArrow').className = 'fa-solid fa-check';
   showAlert('success', `Welcome back, ${fullName.split(' ')[0]}!`);
+  if (window.IconSystem) window.IconSystem.burst(btn, 'success');
   setTimeout(() => { window.location.href = 'nexus-dashboard.html'; }, 900);
 }
 
 function setLoading(loading) {
   document.getElementById('spinner').style.display = loading ? 'block' : 'none';
-  document.getElementById('btnText').textContent   = loading ? 'Signing in…' : 'Sign In →';
+  document.getElementById('btnText').textContent   = loading ? 'Signing in…' : 'Sign In';
+  document.getElementById('btnArrow').style.display = loading ? 'none' : 'inline';
   document.getElementById('submitBtn').disabled    = loading;
 }
 
@@ -595,7 +944,6 @@ document.addEventListener('keydown', (e) => {
 // ── Forgot password modal ─────────────────────────────────────────────────────
 document.getElementById('forgotLink').addEventListener('click', (e) => {
   e.preventDefault();
-  // Pre-fill phone from the form if already entered
   const raw = document.getElementById('phoneInput').value.trim();
   if (isValidUgandaPhone(raw)) {
     document.getElementById('forgotPhone').value = raw;
