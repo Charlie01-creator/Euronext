@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — Euronext</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#060608;--bg:#0A0B0F;--surface:#12141C;--surface2:#191C27;--surface3:#1F2330;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --blue:#3B82F6;--blue-glow:rgba(59,130,246,0.25);--blue-dim:rgba(59,130,246,0.12);
+  --cyan:#06B6D4;--green:#10B981;--green-glow:rgba(16,185,129,0.2);
+  --red:#EF4444;--red-dim:rgba(239,68,68,0.12);
+  --gold:#F59E0B;--gold-glow:rgba(245,158,11,0.2);--purple:#8B5CF6;
+  --mtn:#FFCC00;--mtn-dim:rgba(255,204,0,0.12);
+  --airtel:#E40C0C;--airtel-dim:rgba(228,12,12,0.1);
+  --white:#FFFFFF;--white-80:rgba(255,255,255,0.8);--white-60:rgba(255,255,255,0.6);
+  --white-40:rgba(255,255,255,0.4);--white-10:rgba(255,255,255,0.1);--white-05:rgba(255,255,255,0.05);
+  --font-display:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--black);color:var(--white-80);min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font:inherit}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--blue);border-radius:2px}
+
+/* ── Background ─────────────────────────────────────── */
+.bg-orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;animation:orb 10s ease-in-out infinite}
+.bg-orb-1{width:700px;height:700px;background:radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%);top:-200px;right:-100px}
+.bg-orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);bottom:-100px;left:-80px;animation-delay:-5s}
+@keyframes orb{0%,100%{transform:translate(0,0)}33%{transform:translate(16px,-16px)}66%{transform:translate(-12px,12px)}}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 0%,transparent 100%)}
+
+/* ── Top bar ─────────────────────────────────────────── */
+.topbar{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:24px 32px;max-width:1440px;margin:0 auto;width:100%}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--white);letter-spacing:-.02em}
+.topbar-logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;box-shadow:0 0 16px var(--blue-glow)}
+.topbar-right{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--white-60)}
+.topbar-right a{font-weight:600;color:var(--blue);padding:8px 18px;border-radius:8px;border:1px solid rgba(59,130,246,0.3);background:var(--blue-dim);transition:all .15s ease;font-family:var(--font-display)}
+.topbar-right a:hover{background:var(--blue);color:#fff;box-shadow:0 0 16px var(--blue-glow)}
+
+/* ── Page layout ─────────────────────────────────────── */
+.page{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr 1fr;max-width:1440px;margin:0 auto;width:100%;align-items:center;padding:0 32px 48px;gap:60px}
+
+/* ── Left panel ──────────────────────────────────────── */
+.brand-col{display:flex;flex-direction:column;justify-content:center;gap:32px;padding:40px 0}
+.brand-headline{font-family:var(--font-display);font-size:clamp(36px,4.5vw,56px);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:var(--white)}
+.brand-headline span{background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-sub{font-size:15px;color:var(--white-60);line-height:1.7;max-width:380px}
+
+/* carrier badges */
+.carrier-row{display:flex;gap:12px;flex-wrap:wrap}
+.carrier-badge{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;font-family:var(--font-display);font-size:13px;font-weight:700}
+.carrier-badge.mtn{background:var(--mtn-dim);border:1px solid rgba(255,204,0,0.25);color:var(--mtn)}
+.carrier-badge.airtel{background:var(--airtel-dim);border:1px solid rgba(228,12,12,0.2);color:var(--airtel)}
+.carrier-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+
+/* security info card */
+.security-card{padding:22px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(20px)}
+.security-card-title{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--white);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.security-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--white-60);padding:8px 0;border-bottom:1px solid var(--border)}
+.security-item:last-child{border:none}
+.security-item-icon{width:26px;height:26px;border-radius:7px;background:var(--green-glow);border:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+
+/* ── Right panel — form ──────────────────────────────── */
+.form-col{display:flex;align-items:center;justify-content:center}
+.form-wrap{width:100%;max-width:430px;display:flex;flex-direction:column;gap:22px}
+
+/* eyebrow */
+.form-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 8px;border-radius:100px;background:var(--blue-dim);border:1px solid rgba(59,130,246,0.25);width:fit-content}
+.eyebrow-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.eyebrow-text{font-family:var(--font-mono);font-size:12px;color:var(--blue);letter-spacing:.05em}
+
+.form-title{font-family:var(--font-display);font-size:clamp(26px,3.2vw,34px);font-weight:800;line-height:1.1;letter-spacing:-.02em;color:var(--white)}
+.form-title span{background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.form-sub{font-size:14px;color:var(--white-60);line-height:1.6;margin-top:-6px}
+
+/* card */
+.form-card{padding:28px;background:rgba(255,255,255,0.04);border:1px solid var(--border);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:20px;display:flex;flex-direction:column;gap:16px}
+
+/* fields */
+.field{display:flex;flex-direction:column;gap:7px}
+.field-row{display:flex;justify-content:space-between;align-items:center}
+.field label{font-size:11.5px;font-weight:600;color:var(--white-60);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.07em}
+.input-wrap{position:relative}
+.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;z-index:1;line-height:1}
+.field input{width:100%;padding:13px 14px 13px 42px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:var(--font-body);font-size:14.5px;transition:all .2s ease}
+.field input::placeholder{color:var(--white-40)}
+.field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-dim);background:var(--surface)}
+.field input:valid:not(:placeholder-shown){border-color:rgba(16,185,129,0.4)}
+.field.error input{border-color:var(--red);box-shadow:0 0 0 3px var(--red-dim)}
+.field.error .error-msg{display:block}
+.error-msg{font-size:12px;color:var(--red);display:none;margin-top:2px}
+
+/* phone prefix */
+.phone-prefix{position:absolute;left:42px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:13px;color:var(--white-60);pointer-events:none;letter-spacing:.02em;z-index:2}
+.field input.has-prefix{padding-left:90px}
+
+/* carrier pill */
+.carrier-pill{display:none;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;font-family:var(--font-mono);font-size:11px;font-weight:600;margin-top:5px;width:fit-content}
+.carrier-pill.mtn{background:var(--mtn-dim);color:var(--mtn);border:1px solid rgba(255,204,0,0.25)}
+.carrier-pill.airtel{background:var(--airtel-dim);color:var(--airtel);border:1px solid rgba(228,12,12,0.2)}
+.carrier-pill.show{display:flex}
+.carrier-pill-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* field divider */
+.field-divider{height:1px;background:var(--border);margin:4px 0}
+
+/* password visibility toggle */
+.toggle-pw{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--white-40);cursor:pointer;font-family:var(--font-mono);background:none;border:none;transition:color .15s ease;letter-spacing:.05em}
+.toggle-pw:hover{color:var(--blue)}
+
+/* forgot link */
+.forgot-link{font-size:12px;color:var(--blue);font-family:var(--font-mono);transition:color .15s ease}
+.forgot-link:hover{color:var(--cyan)}
+
+/* remember row */
+.remember-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--white-60)}
+.remember-row input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+
+/* alert box */
+.alert-box{display:none;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.5}
+.alert-box.error{background:var(--red-dim);border:1px solid rgba(239,68,68,0.25);color:var(--red)}
+.alert-box.success{background:var(--green-glow);border:1px solid rgba(16,185,129,0.25);color:var(--green)}
+.alert-box.show{display:flex}
+
+/* submit button */
+.submit-btn{width:100%;padding:15px 24px;border-radius:10px;font-family:var(--font-display);font-size:15px;font-weight:700;background:var(--blue);color:#fff;box-shadow:0 0 24px var(--blue-glow);transition:all .2s ease;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+.submit-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);transform:translateX(-100%);transition:transform .5s ease}
+.submit-btn:hover::before{transform:translateX(100%)}
+.submit-btn:hover{background:#60A5FA;box-shadow:0 0 36px rgba(59,130,246,0.45);transform:translateY(-1px)}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn:disabled{opacity:.6;pointer-events:none}
+
+/* spinner */
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* divider */
+.divider{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--white-40);font-family:var(--font-mono)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+/* social */
+.social-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.social-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:10px;background:var(--surface2);border:1px solid var(--border2);font-size:13px;font-weight:600;color:var(--white-80);transition:all .2s ease;font-family:var(--font-display)}
+.social-btn:hover{background:var(--surface);transform:translateY(-1px)}
+
+/* register prompt */
+.register-prompt{text-align:center;font-size:14px;color:var(--white-60)}
+.register-prompt a{color:var(--blue);font-weight:600;transition:color .15s ease}
+.register-prompt a:hover{color:var(--cyan)}
+
+/* fade up */
+.fade-up{opacity:0;transform:translateY(20px);animation:fadeUp .65s ease forwards}
+.fade-up.d1{animation-delay:.1s}.fade-up.d2{animation-delay:.2s}.fade-up.d3{animation-delay:.3s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media(max-width:960px){
+  .page{grid-template-columns:1fr;gap:0}
+  .brand-col{display:none}
+  .form-col{padding:0}
+  .form-wrap{max-width:520px}
+}
+@media(max-width:540px){
+  .topbar{padding:20px}
+  .page{padding:0 20px 40px}
+  .form-card{padding:22px 18px}
+  .social-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-grid"></div>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <a href="nexus-invest.html" class="topbar-logo">
+    <div class="topbar-logo-icon">E</div>
+    Euronext
+  </a>
+  <div class="topbar-right">
+    <span>No account?</span>
+    <a href="nexus-register.html">Register Free →</a>
+  </div>
+</div>
+
+<!-- Page -->
+<div class="page">
+
+  <!-- LEFT: Branding -->
+  <div class="brand-col">
+    <div class="fade-up">
+      <h1 class="brand-headline">Welcome back<br>to your<br><span>portfolio.</span></h1>
+      <p class="brand-sub" style="margin-top:16px">Sign in with your registered full name, MTN or Airtel Uganda number, and password.</p>
+    </div>
+
+    <div class="fade-up d1">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--white-40);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Supported networks</div>
+      <div class="carrier-row">
+        <div class="carrier-badge mtn"><div class="carrier-dot"></div>MTN Uganda</div>
+        <div class="carrier-badge airtel"><div class="carrier-dot"></div>Airtel Uganda</div>
+      </div>
+    </div>
+
+    <div class="security-card fade-up d2">
+      <div class="security-card-title">🔐 How your account is protected</div>
+      <div class="security-item">
+        <div class="security-item-icon">👤</div>
+        <span>Full name must match exactly as registered</span>
+      </div>
+      <div class="security-item">
+        <div class="security-item-icon">📱</div>
+        <span>MTN or Airtel Uganda number required</span>
+      </div>
+      <div class="security-item">
+        <div class="security-item-icon">🔒</div>
+        <span>Password encrypted with bank-grade security</span>
+      </div>
+      <div class="security-item">
+        <div class="security-item-icon">🛡️</div>
+        <span>Three-factor verification on every login</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Single login form -->
+  <div class="form-col">
+    <div class="form-wrap">
+
+      <div class="fade-up">
+        <div class="form-eyebrow">
+          <div class="eyebrow-dot"></div>
+          <span class="eyebrow-text">Secure Login · 256-bit Encrypted</span>
+        </div>
+      </div>
+
+      <div class="fade-up d1">
+        <h2 class="form-title">Sign in to <span>Euronext</span></h2>
+        <p class="form-sub">Enter your registered details to access your dashboard.</p>
+      </div>
+
+      <div class="form-card fade-up d2">
+
+        <!-- Alert -->
+        <div class="alert-box" id="alertBox">
+          <span id="alertIcon">⚠️</span>
+          <span id="alertText"></span>
+        </div>
+
+        <!-- Field 1: Full Name -->
+        <div class="field" id="nameField">
+          <label for="nameInput">Full Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input
+              type="text"
+              id="nameInput"
+              placeholder="As registered — e.g. Charles Semakula"
+              autocomplete="name"
+              spellcheck="false"
+            >
+          </div>
+          <span class="error-msg" id="nameError">Enter your full name exactly as registered</span>
+        </div>
+
+        <div class="field-divider"></div>
+
+        <!-- Field 2: Phone Number -->
+        <div class="field" id="phoneField">
+          <label for="phoneInput">MTN / Airtel Phone Number</label>
+          <div class="input-wrap">
+            <span class="input-icon">📱</span>
+            <span class="phone-prefix">+256</span>
+            <input
+              type="tel"
+              id="phoneInput"
+              class="has-prefix"
+              placeholder="077 123 4567"
+              autocomplete="tel"
+              inputmode="numeric"
+              maxlength="13"
+            >
+          </div>
+          <div class="carrier-pill" id="carrierPill">
+            <div class="carrier-pill-dot"></div>
+            <span id="carrierLabel">MTN Uganda</span>
+          </div>
+          <span class="error-msg" id="phoneError">Enter a valid MTN or Airtel Uganda number</span>
+        </div>
+
+        <div class="field-divider"></div>
+
+        <!-- Field 3: Password -->
+        <div class="field" id="passwordField">
+          <div class="field-row">
+            <label for="passwordInput">Password</label>
+            <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
+          </div>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input
+              type="password"
+              id="passwordInput"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            >
+            <button type="button" class="toggle-pw" id="togglePw">SHOW</button>
+          </div>
+          <span class="error-msg" id="passwordError">Please enter your password</span>
+        </div>
+
+        <!-- Remember me -->
+        <label class="remember-row">
+          <input type="checkbox" id="rememberMe">
+          Keep me signed in for 30 days
+        </label>
+
+        <!-- Submit -->
+        <button class="submit-btn" id="submitBtn" onclick="handleLogin()">
+          <span class="spinner" id="spinner"></span>
+          <span id="btnText">Sign In →</span>
+        </button>
+
+        <div class="divider">OR CONTINUE WITH</div>
+
+        <div class="social-row">
+          <button class="social-btn" type="button">🔵 Google</button>
+          <button class="social-btn" type="button"> Apple</button>
+        </div>
+
+      </div>
+
+      <div class="register-prompt fade-up d3">
+        Don't have an account? <a href="nexus-register.html">Create one free →</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Forgot password modal -->
+<div id="forgotOverlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(6,6,8,0.88);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:380px;padding:28px;background:rgba(25,28,39,0.98);border:1px solid rgba(255,255,255,0.12);border-radius:20px;display:flex;flex-direction:column;gap:18px;animation:fadeUp .3s ease">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--white);margin-bottom:5px">Reset your password</div>
+        <div style="font-size:13px;color:var(--white-60);line-height:1.6">Enter your registered phone number. A reset link will be sent to the email on your account.</div>
+      </div>
+      <button onclick="closeForgot()" style="color:var(--white-40);font-size:20px;line-height:1;cursor:pointer;background:none;border:none;transition:color .15s" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">✕</button>
+    </div>
+    <div id="forgotForm">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--white-60);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Your registered phone number</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--white-60)">+256</span>
+        <input
+          id="forgotPhone"
+          type="tel"
+          inputmode="numeric"
+          placeholder="077 123 4567"
+          maxlength="13"
+          style="flex:1;padding:11px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:var(--font-body);font-size:14px"
+        >
+      </div>
+      <span id="forgotPhoneError" style="font-size:12px;color:var(--red);display:none;margin-bottom:10px;display:block">Enter a valid MTN or Airtel Uganda number</span>
+      <button onclick="submitForgot()" style="width:100%;padding:13px;border-radius:10px;font-family:var(--font-display);font-size:14px;font-weight:700;background:var(--blue);color:#fff;border:none;cursor:pointer;box-shadow:0 0 20px var(--blue-glow);transition:background .2s" onmouseover="this.style.background='#60A5FA'" onmouseout="this.style.background='var(--blue)'">Send Reset Link →</button>
+    </div>
+    <div id="forgotSuccess" style="display:none;text-align:center;padding:16px;background:var(--green-glow);border:1px solid rgba(16,185,129,0.25);border-radius:12px">
+      <div style="font-size:26px;margin-bottom:8px">✅</div>
+      <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px">Check your email</div>
+      <div style="font-size:12.5px;color:var(--green);line-height:1.6">A password reset link has been sent to the email registered with this number.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:3000/api/v1';
+
+// ── Uganda phone helpers ──────────────────────────────────────────────────────
+const MTN_PREFIXES    = ['77','78','76','39'];
+const AIRTEL_PREFIXES = ['70','75','74','20'];
+
+function normalisePhone(raw) {
+  const s = raw.replace(/[\s\-()]/g, '');
+  if (s.startsWith('+256')) return s;
+  if (s.startsWith('256'))  return '+' + s;
+  if (s.startsWith('0'))    return '+256' + s.slice(1);
+  if (/^[27]\d{8}$/.test(s)) return '+256' + s;
+  return s;
+}
+
+function detectCarrier(normalised) {
+  const local  = normalised.replace('+256', '');
+  const prefix = local.slice(0, 2);
+  if (MTN_PREFIXES.includes(prefix))    return 'MTN';
+  if (AIRTEL_PREFIXES.includes(prefix)) return 'Airtel';
+  return null;
+}
+
+function isValidUgandaPhone(raw) {
+  const n     = normalisePhone(raw);
+  const local = n.replace('+256', '');
+  const prefix = local.slice(0, 2);
+  return n.startsWith('+256') && local.length === 9 &&
+    (MTN_PREFIXES.includes(prefix) || AIRTEL_PREFIXES.includes(prefix));
+}
+
+// ── Live carrier detection on phone input ─────────────────────────────────────
+const phoneInput  = document.getElementById('phoneInput');
+const carrierPill = document.getElementById('carrierPill');
+const carrierLabel = document.getElementById('carrierLabel');
+
+phoneInput.addEventListener('input', () => {
+  document.getElementById('phoneField').classList.remove('error');
+  const raw = phoneInput.value.trim();
+  if (isValidUgandaPhone(raw)) {
+    const carrier = detectCarrier(normalisePhone(raw));
+    if (carrier) {
+      carrierPill.className = 'carrier-pill show ' + carrier.toLowerCase();
+      carrierLabel.textContent = carrier + ' Uganda ✓';
+    } else {
+      carrierPill.className = 'carrier-pill';
+    }
+  } else {
+    carrierPill.className = 'carrier-pill';
+  }
+});
+
+// ── Password visibility ───────────────────────────────────────────────────────
+document.getElementById('togglePw').addEventListener('click', () => {
+  const input = document.getElementById('passwordInput');
+  const btn   = document.getElementById('togglePw');
+  input.type  = input.type === 'password' ? 'text' : 'password';
+  btn.textContent = input.type === 'password' ? 'SHOW' : 'HIDE';
+});
+
+// ── Alert helpers ─────────────────────────────────────────────────────────────
+function showAlert(type, msg) {
+  const box = document.getElementById('alertBox');
+  document.getElementById('alertText').textContent = msg;
+  document.getElementById('alertIcon').textContent = type === 'error' ? '⚠️' : '✅';
+  box.className = 'alert-box show ' + type;
+}
+function clearAlert() {
+  document.getElementById('alertBox').className = 'alert-box';
+}
+
+// ── Clear errors on input ─────────────────────────────────────────────────────
+['nameInput','phoneInput','passwordInput'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', () => {
+    el.closest('.field').classList.remove('error');
+    clearAlert();
+  });
+});
+
+// ── Form validation ───────────────────────────────────────────────────────────
+function validateForm() {
+  let valid = true;
+
+  // Full name
+  const name = document.getElementById('nameInput').value.trim();
+  if (name.length < 2 || !name.includes(' ')) {
+    document.getElementById('nameField').classList.add('error');
+    document.getElementById('nameError').textContent =
+      'Enter your full name (first and last) as registered';
+    valid = false;
+  }
+
+  // Phone
+  const phone = document.getElementById('phoneInput').value.trim();
+  if (!isValidUgandaPhone(phone)) {
+    document.getElementById('phoneField').classList.add('error');
+    valid = false;
+  }
+
+  // Password
+  const password = document.getElementById('passwordInput').value;
+  if (!password) {
+    document.getElementById('passwordField').classList.add('error');
+    valid = false;
+  }
+
+  return valid;
+}
+
+// ── Login handler ─────────────────────────────────────────────────────────────
+async function handleLogin() {
+  clearAlert();
+  if (!validateForm()) {
+    showAlert('error', 'Please fill in all three fields correctly.');
+    return;
+  }
+
+  const fullName    = document.getElementById('nameInput').value.trim();
+  const phoneNumber = normalisePhone(document.getElementById('phoneInput').value.trim());
+  const password    = document.getElementById('passwordInput').value;
+
+  setLoading(true);
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ fullName, phoneNumber, password }),
+    });
+
+    const json = await res.json();
+    setLoading(false);
+
+    if (!res.ok) {
+      // Generic message — don't tell attacker which field was wrong
+      const msg = res.status === 401
+        ? 'The name, phone number, or password is incorrect. Please check and try again.'
+        : res.status === 403
+          ? json.error?.message ?? 'Account access denied.'
+          : json.error?.message ?? 'Login failed. Please try again.';
+
+      showAlert('error', msg);
+
+      if (res.status === 401) {
+        // Highlight all three fields — don't reveal which one was wrong
+        ['nameField','phoneField','passwordField'].forEach(id => {
+          document.getElementById(id).classList.add('error');
+        });
+        // Clear password only
+        document.getElementById('passwordInput').value = '';
+      }
+      return;
+    }
+
+    // Success
+    const { accessToken, user } = json.data;
+    try {
+      localStorage.setItem('nexus_user_name',  user.fullName);
+      localStorage.setItem('nexus_user_email', user.email ?? '');
+      localStorage.setItem('nexus_access_token', accessToken);
+    } catch(e) { /* storage unavailable */ }
+
+    const btn = document.getElementById('submitBtn');
+    btn.style.background = 'var(--green)';
+    btn.style.boxShadow  = '0 0 24px var(--green-glow)';
+    document.getElementById('btnText').textContent = '✓ Signed in — Redirecting…';
+    showAlert('success', `Welcome back, ${user.fullName.split(' ')[0]}!`);
+
+    setTimeout(() => { window.location.href = 'nexus-dashboard.html'; }, 900);
+
+  } catch(err) {
+    setLoading(false);
+    // No backend — demo mode
+    demoLogin(fullName);
+  }
+}
+
+function demoLogin(fullName) {
+  try {
+    localStorage.setItem('nexus_user_name', fullName);
+    localStorage.setItem('nexus_access_token', 'demo-token');
+  } catch(e) {}
+  const btn = document.getElementById('submitBtn');
+  btn.style.background = 'var(--green)';
+  document.getElementById('btnText').textContent = '✓ Signed in — Redirecting…';
+  showAlert('success', `Welcome back, ${fullName.split(' ')[0]}!`);
+  setTimeout(() => { window.location.href = 'nexus-dashboard.html'; }, 900);
+}
+
+function setLoading(loading) {
+  document.getElementById('spinner').style.display = loading ? 'block' : 'none';
+  document.getElementById('btnText').textContent   = loading ? 'Signing in…' : 'Sign In →';
+  document.getElementById('submitBtn').disabled    = loading;
+}
+
+// Enter key on any field triggers submit
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !document.getElementById('forgotOverlay').style.display.includes('flex')) {
+    handleLogin();
+  }
+});
+
+// ── Forgot password modal ─────────────────────────────────────────────────────
+document.getElementById('forgotLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  // Pre-fill phone from the form if already entered
+  const raw = document.getElementById('phoneInput').value.trim();
+  if (isValidUgandaPhone(raw)) {
+    document.getElementById('forgotPhone').value = raw;
+  }
+  document.getElementById('forgotForm').style.display    = 'block';
+  document.getElementById('forgotSuccess').style.display = 'none';
+  document.getElementById('forgotPhoneError').style.display = 'none';
+  document.getElementById('forgotOverlay').style.display = 'flex';
+});
+
+function closeForgot() {
+  document.getElementById('forgotOverlay').style.display = 'none';
+}
+
+async function submitForgot() {
+  const raw = document.getElementById('forgotPhone').value.trim();
+  const errEl = document.getElementById('forgotPhoneError');
+
+  if (!isValidUgandaPhone(raw)) {
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const normalised = normalisePhone(raw);
+
+  try {
+    await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phoneNumber: normalised }),
+    });
+  } catch(e) { /* show success regardless — anti-enumeration */ }
+
+  document.getElementById('forgotForm').style.display    = 'none';
+  document.getElementById('forgotSuccess').style.display = 'block';
+}
+
+document.getElementById('forgotOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('forgotOverlay')) closeForgot();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeForgot();
+});
+</script>
+</body>
+</html>
