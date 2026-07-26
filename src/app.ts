@@ -108,8 +108,7 @@ export function createApp(): Express {
 
   // ── Frontend (served from the same origin as the API) ──────────
   const publicDir = path.join(__dirname, '..', 'public');
-  app.use(express.static(publicDir));
-  app.get('/', (_req, res) => res.sendFile(path.join(publicDir, 'login-1.html')));
+  app.use(express.static(publicDir)); // serves index.html for '/' automatically — no manual route needed
 
   app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.get('/docs.json', (_req, res) => res.json(swaggerSpec));
