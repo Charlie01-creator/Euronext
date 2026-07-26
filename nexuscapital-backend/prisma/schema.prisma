@@ -1,0 +1,301 @@
+// ══════════════════════════════════════════════════════════════════
+// NexusCapital — Prisma Schema
+// ══════════════════════════════════════════════════════════════════
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────────────────────────
+// ENUMS
+// ──────────────────────────────────────────────────────────────────
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PACKAGE_PURCHASE
+  PACKAGE_RETURN
+  COMMISSION
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  MTN_MOBILE_MONEY
+  AIRTEL_MONEY
+  CARD
+  BANK_TRANSFER
+}
+
+enum PackageStatus {
+  PENDING
+  ACTIVE
+  MATURED
+  CANCELLED
+}
+
+enum ReferralStatus {
+  PENDING
+  QUALIFIED
+  PAID
+}
+
+enum NotificationType {
+  DEPOSIT
+  WITHDRAWAL
+  COMMISSION
+  PACKAGE
+  ACHIEVEMENT
+  SECURITY
+  SYSTEM
+}
+
+enum KycStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum WebhookProcessingStatus {
+  RECEIVED
+  PROCESSED
+  IGNORED
+  FAILED
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ──────────────────────────────────────────────────────────────────
+// USER & AUTH
+// ──────────────────────────────────────────────────────────────────
+model User {
+  id                String    @id @default(uuid())
+  fullName          String
+  email             String    @unique
+  phone             String?   @unique
+  passwordHash      String
+  country           String?   @default("Uganda")
+  referralCode      String    @unique
+  role              Role      @default(USER)
+  referredById      String?
+  referredBy        User?     @relation("Referrals", fields: [referredById], references: [id])
+  referredUsers     User[]    @relation("Referrals")
+
+  isEmailVerified   Boolean   @default(false)
+  kycStatus         KycStatus @default(UNVERIFIED)
+  twoFactorEnabled  Boolean   @default(false)
+  twoFactorSecret   String?
+
+  // Account lockout (brute-force protection independent of IP-based rate limiting)
+  failedLoginAttempts Int      @default(0)
+  lockedUntil         DateTime?
+
+  defaultCurrency   String    @default("USD")
+
+  balanceUsd        Decimal   @default(0) @db.Decimal(18, 2)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  refreshTokens     RefreshToken[]
+  userPackages      UserPackage[]
+  transactions      Transaction[]
+  notifications     Notification[]
+  loginActivities   LoginActivity[]
+  referralsAsReferrer Referral[] @relation("ReferralAsReferrer")
+  referralAsReferred  Referral?  @relation("ReferralAsReferred")
+  commissionsEarned Commission[]    @relation("CommissionEarner")
+
+  @@index([email])
+  @@index([referralCode])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  device    String?
+  ipAddress String?
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, revoked])
+}
+
+model LoginActivity {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device    String
+  location  String?
+  ipAddress String
+  flagged   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, createdAt])
+}
+
+// ──────────────────────────────────────────────────────────────────
+// INVESTMENT PACKAGES
+// ──────────────────────────────────────────────────────────────────
+model Package {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  icon         String
+  color        String
+  minAmountUsd Decimal  @db.Decimal(18, 2)
+  termDays     Int
+  ratePercent  Decimal  @db.Decimal(5, 2)
+  featured     Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  userPackages UserPackage[]
+}
+
+model UserPackage {
+  id               String        @id @default(uuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId        String
+  package          Package       @relation(fields: [packageId], references: [id])
+  principalUsd     Decimal       @db.Decimal(18, 2)
+  projectedReturnUsd Decimal     @db.Decimal(18, 2)
+  status           PackageStatus @default(ACTIVE)
+  startedAt        DateTime      @default(now())
+  maturesAt        DateTime
+  endedAt          DateTime?
+
+  transactions     Transaction[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ──────────────────────────────────────────────────────────────────
+// TRANSACTIONS (deposits, withdrawals, purchases, returns, commissions)
+// ──────────────────────────────────────────────────────────────────
+model Transaction {
+  id             String            @id @default(uuid())
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           TransactionType
+  status         TransactionStatus @default(PENDING)
+  method         PaymentMethod?
+  amountUsd      Decimal           @db.Decimal(18, 2)
+  currency       String            @default("USD")
+  destination    Json?
+  providerRef    String?           @unique
+  userPackageId  String?
+  userPackage    UserPackage?      @relation(fields: [userPackageId], references: [id])
+  failureReason  String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  commission     Commission?
+
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([userId, type, createdAt])
+  @@index([userId, status, type])
+}
+
+// ──────────────────────────────────────────────────────────────────
+// REFERRALS & COMMISSIONS
+// ──────────────────────────────────────────────────────────────────
+model Referral {
+  id           String         @id @default(uuid())
+  referrerId   String
+  referrer     User           @relation("ReferralAsReferrer", fields: [referrerId], references: [id])
+  referredId   String         @unique
+  referred     User           @relation("ReferralAsReferred", fields: [referredId], references: [id])
+  status       ReferralStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
+
+  commissions  Commission[]
+
+  @@index([referrerId])
+  @@index([referrerId, status])
+}
+
+model Commission {
+  id            String      @id @default(uuid())
+  referralId    String
+  referral      Referral    @relation(fields: [referralId], references: [id], onDelete: Cascade)
+  earnerId      String
+  earner        User        @relation("CommissionEarner", fields: [earnerId], references: [id], onDelete: Cascade)
+  transactionId String      @unique
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  ratePercent   Decimal     @db.Decimal(5, 2) @default(7.00)
+  amountUsd     Decimal     @db.Decimal(18, 2)
+  createdAt     DateTime    @default(now())
+
+  @@index([earnerId])
+}
+
+// ──────────────────────────────────────────────────────────────────
+// NOTIFICATIONS
+// ──────────────────────────────────────────────────────────────────
+model Notification {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  icon        String
+  color       String
+  title       String
+  description String
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+}
+
+// ──────────────────────────────────────────────────────────────────
+// CURRENCY RATES (server-authoritative; mirrors the frontend Currency module)
+// ──────────────────────────────────────────────────────────────────
+model CurrencyRate {
+  code      String   @id
+  symbol    String
+  rateToUsd Decimal  @db.Decimal(12, 6)
+  updatedAt DateTime @updatedAt
+}
+
+// ──────────────────────────────────────────────────────────────────
+// WEBHOOK AUDIT TRAIL — every inbound webhook, regardless of outcome
+// ──────────────────────────────────────────────────────────────────
+model WebhookEvent {
+  id             String                  @id @default(uuid())
+  provider       String                  @default("flutterwave")
+  eventType      String
+  providerRef    String?
+  signatureValid Boolean
+  status         WebhookProcessingStatus @default(RECEIVED)
+  payload        Json
+  errorMessage   String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  @@index([providerRef])
+  @@index([status])
+  @@index([createdAt])
+}

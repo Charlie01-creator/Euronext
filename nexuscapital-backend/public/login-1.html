@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — Euronext</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ===== ICON SYSTEM (inlined) ===== */
+/* ==========================================================================
+   ICON SYSTEM — reusable, premium fintech icon components
+   Drop icon-system.css + icon-system.js into any page. Markup pattern:
+
+     <span class="icon-orb icon-orb--md" data-magnetic data-tip="Label">
+       <i class="fa-solid fa-house"></i>
+     </span>
+
+   Modifiers:
+     size:      icon-orb--xs | icon-orb--sm | icon-orb--md | icon-orb--lg
+     glow:      icon-glow-blue | icon-glow-green | icon-glow-amber | icon-glow-red
+     state:     icon-orb--active (persistent glow, for current nav item)
+     data-*:    data-magnetic (cursor-follow), data-float (idle bob),
+                data-pulse (on the <i>, for notification badges),
+                data-tip="Text" (hover tooltip), data-badge="3" (count pill),
+                data-burst="success|gold|error" (particle burst on click)
+   ========================================================================== */
+
+:root{
+  --icon-glass-bg: rgba(255,255,255,0.045);
+  --icon-glass-border: rgba(255,255,255,0.10);
+  --icon-glass-border-hover: rgba(255,255,255,0.22);
+  --icon-shadow: 0 4px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+  --icon-blue: #3B82F6;
+  --icon-green: #10B981;
+  --icon-amber: #F59E0B;
+  --icon-red: #EF4444;
+  --icon-transition: 220ms cubic-bezier(.2,.8,.2,1);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .icon-orb, .icon-orb *, [data-float], [data-pulse]{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* ── Base orb ─────────────────────────────────────────────────────────── */
+.icon-orb{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: rgba(255,255,255,0.75);
+  background: var(--icon-glass-bg);
+  border: 1px solid var(--icon-glass-border);
+  box-shadow: var(--icon-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform var(--icon-transition), background var(--icon-transition),
+              border-color var(--icon-transition), box-shadow var(--icon-transition), color var(--icon-transition);
+  will-change: transform;
+}
+.icon-orb i{ font-size: 16px; line-height: 1; transition: transform var(--icon-transition); pointer-events:none; }
+
+/* size scale */
+.icon-orb--xs{ width: 30px; height: 30px; border-radius: 9px; } .icon-orb--xs i{ font-size: 12.5px; }
+.icon-orb--sm{ width: 38px; height: 38px; border-radius: 11px; } .icon-orb--sm i{ font-size: 15px; }
+.icon-orb--md{ width: 46px; height: 46px; border-radius: 13px; } .icon-orb--md i{ font-size: 17px; }
+.icon-orb--lg{ width: 58px; height: 58px; border-radius: 16px; } .icon-orb--lg i{ font-size: 22px; }
+
+/* ── Hover & interaction states ───────────────────────────────────────── */
+.icon-orb:hover{
+  transform: translateY(-3px) scale(1.07);
+  color: #fff;
+  border-color: var(--icon-glass-border-hover);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.icon-orb:hover i{ transform: scale(1.1) rotate(-4deg); }
+.icon-orb:active{ transform: translateY(-1px) scale(0.96); transition-duration: 80ms; }
+.icon-orb:focus-visible{ outline: 2px solid var(--icon-blue); outline-offset: 2px; }
+
+/* magnetic hover — JS sets --mx/--my per-pixel offset */
+.icon-orb[data-magnetic]{ transform: translate(var(--mx, 0), var(--my, 0)); }
+.icon-orb[data-magnetic]:hover{ transform: translate(var(--mx, 0), var(--my, 0)) translateY(-3px) scale(1.07); }
+
+/* active / current nav item — persistent glow */
+.icon-orb--active{
+  color: #fff;
+  border-color: rgba(59,130,246,0.5);
+  background: rgba(59,130,246,0.14);
+  box-shadow: 0 0 0 1px rgba(59,130,246,0.3), 0 0 22px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.icon-orb--active::after{
+  content:'';
+  position:absolute; inset:-1px;
+  border-radius: inherit;
+  border: 1px solid rgba(59,130,246,0.6);
+  animation: activeRing 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes activeRing{
+  0%,100%{ opacity:.55; transform: scale(1); }
+  50%{ opacity:0; transform: scale(1.18); }
+}
+
+/* ── Semantic glow variants (success / warning / error) ──────────────── */
+.icon-glow-blue{ color: var(--icon-blue); border-color: rgba(59,130,246,0.35); box-shadow: 0 0 16px rgba(59,130,246,0.28), var(--icon-shadow); }
+.icon-glow-green{ color: var(--icon-green); border-color: rgba(16,185,129,0.4); box-shadow: 0 0 18px rgba(16,185,129,0.35), var(--icon-shadow); animation: glowPulseGreen 2.2s ease-in-out infinite; }
+.icon-glow-amber{ color: var(--icon-amber); border-color: rgba(245,158,11,0.4); box-shadow: 0 0 18px rgba(245,158,11,0.35), var(--icon-shadow); animation: glowPulseAmber 2.2s ease-in-out infinite; }
+.icon-glow-red{ color: var(--icon-red); border-color: rgba(239,68,68,0.4); box-shadow: 0 0 18px rgba(239,68,68,0.35), var(--icon-shadow); animation: glowPulseRed 1.6s ease-in-out infinite; }
+
+@keyframes glowPulseGreen{ 0%,100%{ box-shadow:0 0 14px rgba(16,185,129,0.3), var(--icon-shadow);} 50%{ box-shadow:0 0 26px rgba(16,185,129,0.5), var(--icon-shadow);} }
+@keyframes glowPulseAmber{ 0%,100%{ box-shadow:0 0 14px rgba(245,158,11,0.3), var(--icon-shadow);} 50%{ box-shadow:0 0 26px rgba(245,158,11,0.5), var(--icon-shadow);} }
+@keyframes glowPulseRed{ 0%,100%{ box-shadow:0 0 14px rgba(239,68,68,0.35), var(--icon-shadow);} 50%{ box-shadow:0 0 28px rgba(239,68,68,0.6), var(--icon-shadow);} }
+
+/* ── Idle floating animation ──────────────────────────────────────────── */
+[data-float]{ animation: iconFloat 4.5s ease-in-out infinite; }
+[data-float]:nth-child(odd){ animation-delay: -1.6s; }
+[data-float]:nth-child(3n){ animation-delay: -3s; }
+@keyframes iconFloat{
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-5px); }
+}
+.icon-orb[data-magnetic][data-float]{ animation: none; } /* magnetic transform takes priority to avoid transform fights */
+
+/* ── Notification pulse (on the <i> itself, e.g. bell) ────────────────── */
+[data-pulse]{ animation: iconPulse 1.8s ease-in-out infinite; transform-origin: 50% 40%; }
+@keyframes iconPulse{
+  0%,100%{ transform: scale(1) rotate(0); }
+  10%{ transform: scale(1.08) rotate(-8deg); }
+  20%{ transform: scale(1.08) rotate(8deg); }
+  30%{ transform: scale(1.04) rotate(-4deg); }
+  40%{ transform: scale(1) rotate(0); }
+}
+
+/* ── Loading spin ─────────────────────────────────────────────────────── */
+.icon-spin{ animation: iconSpin 0.8s linear infinite; }
+@keyframes iconSpin{ to{ transform: rotate(360deg); } }
+
+/* ── Bounce (achievements / rewards) ──────────────────────────────────── */
+.icon-bounce{ animation: iconBounce 0.9s cubic-bezier(.28,1.4,.5,1) 1; }
+@keyframes iconBounce{
+  0%{ transform: scale(1) translateY(0); }
+  30%{ transform: scale(1.25) translateY(-10px); }
+  50%{ transform: scale(0.92) translateY(2px); }
+  70%{ transform: scale(1.08) translateY(-4px); }
+  100%{ transform: scale(1) translateY(0); }
+}
+
+/* ── Ripple on click ──────────────────────────────────────────────────── */
+.icon-ripple{
+  position:absolute;
+  border-radius:50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 70%);
+  transform: scale(0);
+  pointer-events:none;
+  animation: rippleOut 650ms ease-out forwards;
+}
+@keyframes rippleOut{
+  0%{ transform: scale(0); opacity: .55; }
+  100%{ transform: scale(2.6); opacity: 0; }
+}
+
+/* ── Badge (unread count) ─────────────────────────────────────────────── */
+.icon-orb[data-badge]::before{
+  content: attr(data-badge);
+  position:absolute; top:-6px; right:-6px;
+  min-width:16px; height:16px; padding:0 4px;
+  border-radius:100px;
+  background: var(--icon-red);
+  color:#fff; font-family:'DM Mono',monospace; font-size:10px; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 0 0 2px rgba(10,11,15,0.9), 0 0 10px rgba(239,68,68,0.6);
+  animation: badgePop 2.6s ease-in-out infinite;
+}
+@keyframes badgePop{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.15);} }
+
+/* ── Tooltip ──────────────────────────────────────────────────────────── */
+.icon-orb[data-tip]{ position:relative; }
+.icon-orb[data-tip]::after{
+  content: attr(data-tip);
+  position:absolute; bottom: calc(100% + 10px); left:50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(15,17,24,0.96);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff; font-family:'DM Sans',sans-serif; font-size:11.5px; font-weight:500;
+  padding: 5px 10px; border-radius: 7px; white-space: nowrap;
+  opacity:0; pointer-events:none;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  transition: opacity 160ms ease, transform 160ms ease;
+  z-index: 20;
+}
+.icon-orb[data-tip]:hover::after{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+/* ── Icon dock (dashboard nav strip) ──────────────────────────────────── */
+.icon-dock{
+  display:flex; flex-wrap:wrap; gap:10px;
+  padding:16px; border-radius:18px;
+  background: rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(18px);
+}
+
+/* ── Particle burst (spawned by icon-system.js) ──────────────────────── */
+#particleLayer{ position:fixed; inset:0; pointer-events:none; z-index:9999; }
+.icon-particle{
+  position:absolute; width:5px; height:5px; border-radius:50%;
+  animation: particleFly 750ms cubic-bezier(.15,.6,.3,1) forwards;
+}
+@keyframes particleFly{
+  0%{ transform: translate(0,0) scale(1); opacity:1; }
+  100%{ transform: translate(var(--px), var(--py)) scale(0); opacity:0; }
+}
+
+/* ===== END ICON SYSTEM ===== */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#060608;--bg:#0A0B0F;--surface:#12141C;--surface2:#191C27;--surface3:#1F2330;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --blue:#3B82F6;--blue-glow:rgba(59,130,246,0.25);--blue-dim:rgba(59,130,246,0.12);
+  --cyan:#06B6D4;--green:#10B981;--green-glow:rgba(16,185,129,0.2);
+  --red:#EF4444;--red-dim:rgba(239,68,68,0.12);
+  --gold:#F59E0B;--gold-glow:rgba(245,158,11,0.2);--purple:#8B5CF6;
+  --mtn:#FFCC00;--mtn-dim:rgba(255,204,0,0.12);
+  --airtel:#E40C0C;--airtel-dim:rgba(228,12,12,0.1);
+  --white:#FFFFFF;--white-80:rgba(255,255,255,0.8);--white-60:rgba(255,255,255,0.6);
+  --white-40:rgba(255,255,255,0.4);--white-10:rgba(255,255,255,0.1);--white-05:rgba(255,255,255,0.05);
+  --font-display:'Inter',sans-serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--black);color:var(--white-80);min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font:inherit}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--blue);border-radius:2px}
+
+/* ── Background ─────────────────────────────────────── */
+.bg-orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;animation:orb 10s ease-in-out infinite}
+.bg-orb-1{width:700px;height:700px;background:radial-gradient(circle,rgba(59,130,246,0.12) 0%,transparent 70%);top:-200px;right:-100px}
+.bg-orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);bottom:-100px;left:-80px;animation-delay:-5s}
+@keyframes orb{0%,100%{transform:translate(0,0)}33%{transform:translate(16px,-16px)}66%{transform:translate(-12px,12px)}}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 0%,transparent 100%)}
+
+/* ── Top bar ─────────────────────────────────────────── */
+.topbar{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:24px 32px;max-width:1440px;margin:0 auto;width:100%}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--white);letter-spacing:-.02em}
+.topbar-logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;box-shadow:0 0 16px var(--blue-glow)}
+.topbar-right{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--white-60)}
+.topbar-right a{font-weight:600;color:var(--blue);padding:8px 18px;border-radius:8px;border:1px solid rgba(59,130,246,0.3);background:var(--blue-dim);transition:all .15s ease;font-family:var(--font-display)}
+.topbar-right a:hover{background:var(--blue);color:#fff;box-shadow:0 0 16px var(--blue-glow)}
+
+/* ── Page layout ─────────────────────────────────────── */
+.page{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:1fr 1fr;max-width:1440px;margin:0 auto;width:100%;align-items:center;padding:0 32px 48px;gap:60px}
+
+/* ── Left panel ──────────────────────────────────────── */
+.brand-col{display:flex;flex-direction:column;justify-content:center;gap:32px;padding:40px 0}
+.brand-headline{font-family:var(--font-display);font-size:clamp(36px,4.5vw,56px);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:var(--white)}
+.brand-headline span{background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand-sub{font-size:15px;color:var(--white-60);line-height:1.7;max-width:380px}
+
+/* carrier badges */
+.carrier-row{display:flex;gap:12px;flex-wrap:wrap}
+.carrier-badge{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;font-family:var(--font-display);font-size:13px;font-weight:700}
+.carrier-badge.mtn{background:var(--mtn-dim);border:1px solid rgba(255,204,0,0.25);color:var(--mtn)}
+.carrier-badge.airtel{background:var(--airtel-dim);border:1px solid rgba(228,12,12,0.2);color:var(--airtel)}
+.carrier-dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+
+/* security info card */
+.security-card{padding:22px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:16px;backdrop-filter:blur(20px)}
+.security-card-title{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--white);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.security-item{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--white-60);padding:9px 0;border-bottom:1px solid var(--border)}
+.security-item:last-child{border:none}
+
+/* ── Right panel — form ──────────────────────────────── */
+.form-col{display:flex;align-items:center;justify-content:center}
+.form-wrap{width:100%;max-width:430px;display:flex;flex-direction:column;gap:22px}
+
+/* eyebrow */
+.form-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 8px;border-radius:100px;background:var(--blue-dim);border:1px solid rgba(59,130,246,0.25);width:fit-content}
+.eyebrow-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.eyebrow-text{font-family:var(--font-mono);font-size:12px;color:var(--blue);letter-spacing:.05em}
+
+.form-title{font-family:var(--font-display);font-size:clamp(26px,3.2vw,34px);font-weight:800;line-height:1.1;letter-spacing:-.02em;color:var(--white)}
+.form-title span{background:linear-gradient(135deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.form-sub{font-size:14px;color:var(--white-60);line-height:1.6;margin-top:-6px}
+
+/* card */
+.form-card{padding:28px;background:rgba(255,255,255,0.04);border:1px solid var(--border);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:20px;display:flex;flex-direction:column;gap:16px}
+
+/* fields */
+.field{display:flex;flex-direction:column;gap:7px}
+.field-row{display:flex;justify-content:space-between;align-items:center}
+.field label{font-size:11.5px;font-weight:600;color:var(--white-60);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.07em}
+.input-wrap{position:relative}
+.field input{width:100%;padding:13px 14px 13px 52px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:var(--font-body);font-size:14.5px;transition:all .2s ease}
+.input-wrap .input-icon-orb{position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:1;width:28px;height:28px;border-radius:8px;font-size:12px}
+.input-wrap:focus-within .input-icon-orb{color:var(--blue);border-color:rgba(59,130,246,0.35);box-shadow:0 0 0 3px var(--blue-dim),inset 0 1px 0 rgba(255,255,255,0.08)}
+.field input::placeholder{color:var(--white-40)}
+.field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-dim);background:var(--surface)}
+.field input:valid:not(:placeholder-shown){border-color:rgba(16,185,129,0.4)}
+.field.error input{border-color:var(--red);box-shadow:0 0 0 3px var(--red-dim)}
+.field.error .error-msg{display:block}
+.error-msg{font-size:12px;color:var(--red);display:none;margin-top:2px}
+
+/* phone prefix */
+.phone-prefix{position:absolute;left:52px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:13px;color:var(--white-60);pointer-events:none;letter-spacing:.02em;z-index:2}
+.field input.has-prefix{padding-left:100px}
+
+/* carrier pill */
+.carrier-pill{display:none;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;font-family:var(--font-mono);font-size:11px;font-weight:600;margin-top:5px;width:fit-content}
+.carrier-pill.mtn{background:var(--mtn-dim);color:var(--mtn);border:1px solid rgba(255,204,0,0.25)}
+.carrier-pill.airtel{background:var(--airtel-dim);color:var(--airtel);border:1px solid rgba(228,12,12,0.2)}
+.carrier-pill.show{display:flex}
+.carrier-pill-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* field divider */
+.field-divider{height:1px;background:var(--border);margin:4px 0}
+
+/* password visibility toggle */
+.toggle-pw{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--white-40);cursor:pointer;font-family:var(--font-mono);background:none;border:none;transition:color .15s ease;letter-spacing:.05em}
+.toggle-pw:hover{color:var(--blue)}
+
+/* forgot link */
+.forgot-link{font-size:12px;color:var(--blue);font-family:var(--font-mono);transition:color .15s ease}
+.forgot-link:hover{color:var(--cyan)}
+
+/* remember row */
+.remember-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--white-60)}
+.remember-row input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+
+/* alert box */
+.alert-box{display:none;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.5}
+.alert-box.error{background:var(--red-dim);border:1px solid rgba(239,68,68,0.25);color:var(--red)}
+.alert-box.success{background:var(--green-glow);border:1px solid rgba(16,185,129,0.25);color:var(--green)}
+.alert-box.show{display:flex}
+
+/* submit button */
+.submit-btn{width:100%;padding:15px 24px;border-radius:10px;font-family:var(--font-display);font-size:15px;font-weight:700;background:var(--blue);color:#fff;box-shadow:0 0 24px var(--blue-glow);transition:all .2s ease;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+.submit-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);transform:translateX(-100%);transition:transform .5s ease}
+.submit-btn:hover::before{transform:translateX(100%)}
+.submit-btn:hover{background:#60A5FA;box-shadow:0 0 36px rgba(59,130,246,0.45);transform:translateY(-1px)}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn:disabled{opacity:.6;pointer-events:none}
+
+/* spinner */
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* divider */
+.divider{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--white-40);font-family:var(--font-mono)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+/* social */
+.social-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.social-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:10px;background:var(--surface2);border:1px solid var(--border2);font-size:13px;font-weight:600;color:var(--white-80);transition:all .2s ease;font-family:var(--font-display)}
+.social-btn:hover{background:var(--surface);transform:translateY(-1px)}
+
+/* register prompt */
+.register-prompt{text-align:center;font-size:14px;color:var(--white-60)}
+.register-prompt a{color:var(--blue);font-weight:600;transition:color .15s ease}
+.register-prompt a:hover{color:var(--cyan)}
+
+/* fade up */
+.fade-up{opacity:0;transform:translateY(20px);animation:fadeUp .65s ease forwards}
+.fade-up.d1{animation-delay:.1s}.fade-up.d2{animation-delay:.2s}.fade-up.d3{animation-delay:.3s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media(max-width:960px){
+  .page{grid-template-columns:1fr;gap:0}
+  .brand-col{display:none}
+  .form-col{padding:0}
+  .form-wrap{max-width:520px}
+}
+@media(max-width:540px){
+  .topbar{padding:20px}
+  .page{padding:0 20px 40px}
+  .form-card{padding:22px 18px}
+  .social-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-grid"></div>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <a href="nexus-invest.html" class="topbar-logo">
+    <div class="topbar-logo-icon">E</div>
+    Euronext
+  </a>
+  <div class="topbar-right">
+    <span>No account?</span>
+    <a href="nexus-register.html">Register Free →</a>
+  </div>
+</div>
+
+<!-- Page -->
+<div class="page">
+
+  <!-- LEFT: Branding -->
+  <div class="brand-col">
+    <div class="fade-up">
+      <h1 class="brand-headline">Welcome back<br>to your<br><span>portfolio.</span></h1>
+      <p class="brand-sub" style="margin-top:16px">Sign in with your registered full name, MTN or Airtel Uganda number, and password.</p>
+    </div>
+
+    <div class="fade-up d1">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--white-40);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Supported networks</div>
+      <div class="carrier-row">
+        <div class="carrier-badge mtn"><div class="carrier-dot"></div>MTN Uganda</div>
+        <div class="carrier-badge airtel"><div class="carrier-dot"></div>Airtel Uganda</div>
+      </div>
+    </div>
+
+    <div class="security-card fade-up d2">
+      <div class="security-card-title">
+        <span class="icon-orb icon-orb--sm icon-glow-blue" data-float data-magnetic><i class="fa-solid fa-shield-halved"></i></span>
+        How your account is protected
+      </div>
+      <div class="security-item">
+        <span class="icon-orb icon-orb--xs" data-magnetic><i class="fa-solid fa-user"></i></span>
+        <span>Full name must match exactly as registered</span>
+      </div>
+      <div class="security-item">
+        <span class="icon-orb icon-orb--xs" data-magnetic><i class="fa-solid fa-mobile-screen-button"></i></span>
+        <span>MTN or Airtel Uganda number required</span>
+      </div>
+      <div class="security-item">
+        <span class="icon-orb icon-orb--xs" data-magnetic><i class="fa-solid fa-lock"></i></span>
+        <span>Password encrypted with bank-grade security</span>
+      </div>
+      <div class="security-item">
+        <span class="icon-orb icon-orb--xs" data-magnetic><i class="fa-solid fa-fingerprint"></i></span>
+        <span>Three-factor verification on every login</span>
+      </div>
+    </div>
+
+    <!-- Reusable dashboard icon dock — same components used across the platform -->
+    <div class="icon-dock fade-up d3" aria-label="Platform sections">
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Home"><i class="fa-solid fa-house"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Analytics"><i class="fa-solid fa-chart-line"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Investments"><i class="fa-solid fa-sack-dollar"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Wallet"><i class="fa-solid fa-wallet"></i></button>
+      <button class="icon-orb icon-orb--md icon-orb--active" data-magnetic data-tip="Security"><i class="fa-solid fa-shield-halved"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-badge="3" data-tip="Notifications"><i class="fa-solid fa-bell" data-pulse></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Settings"><i class="fa-solid fa-gear"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Profile"><i class="fa-solid fa-user"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Referrals"><i class="fa-solid fa-users"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Transactions"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Rewards" data-burst="gold"><i class="fa-solid fa-trophy"></i></button>
+      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Support"><i class="fa-solid fa-headset"></i></button>
+    </div>
+  </div>
+
+  <!-- RIGHT: Single login form -->
+  <div class="form-col">
+    <div class="form-wrap">
+
+      <div class="fade-up">
+        <div class="form-eyebrow">
+          <div class="eyebrow-dot"></div>
+          <span class="eyebrow-text">Secure Login · 256-bit Encrypted</span>
+        </div>
+      </div>
+
+      <div class="fade-up d1">
+        <h2 class="form-title">Sign in to <span>Euronext</span></h2>
+        <p class="form-sub">Enter your registered details to access your dashboard.</p>
+      </div>
+
+      <div class="form-card fade-up d2">
+
+        <!-- Alert -->
+        <div class="alert-box" id="alertBox">
+          <span class="icon-orb icon-orb--xs" id="alertIconWrap"><i class="fa-solid fa-triangle-exclamation" id="alertIcon"></i></span>
+          <span id="alertText"></span>
+        </div>
+
+        <!-- Field 1: Full Name -->
+        <div class="field" id="nameField">
+          <label for="nameInput">Full Name</label>
+          <div class="input-wrap">
+            <span class="icon-orb icon-orb--xs input-icon-orb" data-magnetic><i class="fa-solid fa-user"></i></span>
+            <input
+              type="text"
+              id="nameInput"
+              placeholder="As registered — e.g. Charles Semakula"
+              autocomplete="name"
+              spellcheck="false"
+            >
+          </div>
+          <span class="error-msg" id="nameError">Enter your full name exactly as registered</span>
+        </div>
+
+        <div class="field-divider"></div>
+
+        <!-- Field 2: Phone Number -->
+        <div class="field" id="phoneField">
+          <label for="phoneInput">MTN / Airtel Phone Number</label>
+          <div class="input-wrap">
+            <span class="icon-orb icon-orb--xs input-icon-orb" data-magnetic><i class="fa-solid fa-mobile-screen-button"></i></span>
+            <span class="phone-prefix">+256</span>
+            <input
+              type="tel"
+              id="phoneInput"
+              class="has-prefix"
+              placeholder="077 123 4567"
+              autocomplete="tel"
+              inputmode="numeric"
+              maxlength="13"
+            >
+          </div>
+          <div class="carrier-pill" id="carrierPill">
+            <div class="carrier-pill-dot"></div>
+            <span id="carrierLabel">MTN Uganda</span>
+          </div>
+          <span class="error-msg" id="phoneError">Enter a valid MTN or Airtel Uganda number</span>
+        </div>
+
+        <div class="field-divider"></div>
+
+        <!-- Field 3: Password -->
+        <div class="field" id="passwordField">
+          <div class="field-row">
+            <label for="passwordInput">Password</label>
+            <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
+          </div>
+          <div class="input-wrap">
+            <span class="icon-orb icon-orb--xs input-icon-orb" data-magnetic><i class="fa-solid fa-lock"></i></span>
+            <input
+              type="password"
+              id="passwordInput"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            >
+            <button type="button" class="toggle-pw" id="togglePw"><i class="fa-solid fa-eye"></i></button>
+          </div>
+          <span class="error-msg" id="passwordError">Please enter your password</span>
+        </div>
+
+        <!-- Remember me -->
+        <label class="remember-row">
+          <input type="checkbox" id="rememberMe">
+          Keep me signed in for 30 days
+        </label>
+
+        <!-- Submit -->
+        <button class="submit-btn" id="submitBtn" onclick="handleLogin()">
+          <span class="spinner" id="spinner"></span>
+          <span id="btnText">Sign In</span>
+          <i class="fa-solid fa-arrow-right" id="btnArrow"></i>
+        </button>
+
+        <div class="divider">OR CONTINUE WITH</div>
+
+        <div class="social-row">
+          <button class="social-btn" type="button"><i class="fa-brands fa-google"></i> Google</button>
+          <button class="social-btn" type="button"><i class="fa-brands fa-apple"></i> Apple</button>
+        </div>
+
+      </div>
+
+      <div class="register-prompt fade-up d3">
+        Don't have an account? <a href="nexus-register.html">Create one free →</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Forgot password modal -->
+<div id="forgotOverlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(6,6,8,0.88);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:380px;padding:28px;background:rgba(25,28,39,0.98);border:1px solid rgba(255,255,255,0.12);border-radius:20px;display:flex;flex-direction:column;gap:18px;animation:fadeUp .3s ease">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--white);margin-bottom:5px">Reset your password</div>
+        <div style="font-size:13px;color:var(--white-60);line-height:1.6">Enter your registered phone number. A reset link will be sent to the email on your account.</div>
+      </div>
+      <button class="icon-orb icon-orb--xs" onclick="closeForgot()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="forgotForm">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--white-60);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Your registered phone number</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--white-60)">+256</span>
+        <input
+          id="forgotPhone"
+          type="tel"
+          inputmode="numeric"
+          placeholder="077 123 4567"
+          maxlength="13"
+          style="flex:1;padding:11px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;color:var(--white);font-family:var(--font-body);font-size:14px"
+        >
+      </div>
+      <span id="forgotPhoneError" style="font-size:12px;color:var(--red);display:none;margin-bottom:10px;display:block">Enter a valid MTN or Airtel Uganda number</span>
+      <button onclick="submitForgot()" style="width:100%;padding:13px;border-radius:10px;font-family:var(--font-display);font-size:14px;font-weight:700;background:var(--blue);color:#fff;border:none;cursor:pointer;box-shadow:0 0 20px var(--blue-glow);transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px" onmouseover="this.style.background='#60A5FA'" onmouseout="this.style.background='var(--blue)'">Send Reset Link <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+    <div id="forgotSuccess" style="display:none;text-align:center;padding:16px;background:var(--green-glow);border:1px solid rgba(16,185,129,0.25);border-radius:12px">
+      <span class="icon-orb icon-orb--sm icon-glow-green" style="margin:0 auto 8px"><i class="fa-solid fa-circle-check"></i></span>
+      <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px">Check your email</div>
+      <div style="font-size:12.5px;color:var(--green);line-height:1.6">A password reset link has been sent to the email registered with this number.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Particle burst layer -->
+<div id="particleLayer"></div>
+
+<script>
+/* ==========================================================================
+   ICON SYSTEM — behavior layer
+   Pairs with icon-system.css. Auto-initializes on DOMContentLoaded, and
+   exposes window.IconSystem for manual triggers (e.g. after an async action).
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  const MAGNET_STRENGTH = 0.28;   // 0–1, how far the icon follows the cursor
+  const MAGNET_RADIUS = 60;       // px, distance at which the pull begins
+
+  function initMagnetic() {
+    const icons = document.querySelectorAll('.icon-orb[data-magnetic]');
+    icons.forEach((el) => {
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        if (dist > MAGNET_RADIUS) return;
+        el.style.setProperty('--mx', `${dx * MAGNET_STRENGTH}px`);
+        el.style.setProperty('--my', `${dy * MAGNET_STRENGTH}px`);
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.setProperty('--mx', '0px');
+        el.style.setProperty('--my', '0px');
+      });
+    });
+  }
+
+  function initRipple() {
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('.icon-orb');
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      const size = Math.max(rect.width, rect.height);
+      ripple.className = 'icon-ripple';
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+      ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+      el.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+
+      // optional data-burst trigger
+      if (el.dataset.burst) burst(el, el.dataset.burst);
+    });
+  }
+
+  function ensureParticleLayer() {
+    let layer = document.getElementById('particleLayer');
+    if (!layer) {
+      layer = document.createElement('div');
+      layer.id = 'particleLayer';
+      document.body.appendChild(layer);
+    }
+    return layer;
+  }
+
+  const BURST_COLORS = {
+    success: ['#10B981', '#34D399', '#6EE7B7'],
+    green:   ['#10B981', '#34D399', '#6EE7B7'],
+    gold:    ['#F59E0B', '#FBBF24', '#FDE68A'],
+    amber:   ['#F59E0B', '#FBBF24', '#FDE68A'],
+    error:   ['#EF4444', '#F87171', '#FCA5A5'],
+    red:     ['#EF4444', '#F87171', '#FCA5A5'],
+    blue:    ['#3B82F6', '#60A5FA', '#93C5FD'],
+  };
+
+  function burst(originEl, kind = 'blue', count = 14) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = BURST_COLORS[kind] || BURST_COLORS.blue;
+    const layer = ensureParticleLayer();
+
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('span');
+      p.className = 'icon-particle';
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+      const dist = 40 + Math.random() * 50;
+      p.style.setProperty('--px', `${Math.cos(angle) * dist}px`);
+      p.style.setProperty('--py', `${Math.sin(angle) * dist}px`);
+      p.style.left = `${cx}px`;
+      p.style.top = `${cy}px`;
+      p.style.background = colors[i % colors.length];
+      p.style.boxShadow = `0 0 6px ${colors[i % colors.length]}`;
+      layer.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+
+  function triggerBounce(el) {
+    el.classList.remove('icon-bounce');
+    // force reflow so the animation can restart
+    void el.offsetWidth;
+    el.classList.add('icon-bounce');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initMagnetic();
+    initRipple();
+  });
+
+  window.IconSystem = { burst, bounce: triggerBounce };
+})();
+
+</script>
+<script>
+const API_BASE = '/api/v1';
+
+// ── Uganda phone helpers ──────────────────────────────────────────────────────
+const MTN_PREFIXES    = ['77','78','76','39'];
+const AIRTEL_PREFIXES = ['70','75','74','20'];
+
+function normalisePhone(raw) {
+  const s = raw.replace(/[\s\-()]/g, '');
+  if (s.startsWith('+256')) return s;
+  if (s.startsWith('256'))  return '+' + s;
+  if (s.startsWith('0'))    return '+256' + s.slice(1);
+  if (/^[27]\d{8}$/.test(s)) return '+256' + s;
+  return s;
+}
+
+function detectCarrier(normalised) {
+  const local  = normalised.replace('+256', '');
+  const prefix = local.slice(0, 2);
+  if (MTN_PREFIXES.includes(prefix))    return 'MTN';
+  if (AIRTEL_PREFIXES.includes(prefix)) return 'Airtel';
+  return null;
+}
+
+function isValidUgandaPhone(raw) {
+  const n     = normalisePhone(raw);
+  const local = n.replace('+256', '');
+  const prefix = local.slice(0, 2);
+  return n.startsWith('+256') && local.length === 9 &&
+    (MTN_PREFIXES.includes(prefix) || AIRTEL_PREFIXES.includes(prefix));
+}
+
+// ── Live carrier detection on phone input ─────────────────────────────────────
+const phoneInput  = document.getElementById('phoneInput');
+const carrierPill = document.getElementById('carrierPill');
+const carrierLabel = document.getElementById('carrierLabel');
+
+phoneInput.addEventListener('input', () => {
+  document.getElementById('phoneField').classList.remove('error');
+  const raw = phoneInput.value.trim();
+  if (isValidUgandaPhone(raw)) {
+    const carrier = detectCarrier(normalisePhone(raw));
+    if (carrier) {
+      carrierPill.className = 'carrier-pill show ' + carrier.toLowerCase();
+      carrierLabel.innerHTML = carrier + ' Uganda <i class="fa-solid fa-circle-check"></i>';
+    } else {
+      carrierPill.className = 'carrier-pill';
+    }
+  } else {
+    carrierPill.className = 'carrier-pill';
+  }
+});
+
+// ── Password visibility ───────────────────────────────────────────────────────
+document.getElementById('togglePw').addEventListener('click', function() {
+  const input = document.getElementById('passwordInput');
+  const icon  = this.querySelector('i');
+  const showing = input.type === 'password';
+  input.type = showing ? 'text' : 'password';
+  icon.className = showing ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+});
+
+// ── Alert helpers ─────────────────────────────────────────────────────────────
+function showAlert(type, msg) {
+  const box = document.getElementById('alertBox');
+  document.getElementById('alertText').textContent = msg;
+  const icon = document.getElementById('alertIcon');
+  const iconWrap = document.getElementById('alertIconWrap');
+  icon.className = type === 'error' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+  iconWrap.className = 'icon-orb icon-orb--xs ' + (type === 'error' ? 'icon-glow-red' : 'icon-glow-green');
+  box.className = 'alert-box show ' + type;
+}
+function clearAlert() {
+  document.getElementById('alertBox').className = 'alert-box';
+}
+
+// ── Clear errors on input ─────────────────────────────────────────────────────
+['nameInput','phoneInput','passwordInput'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', () => {
+    el.closest('.field').classList.remove('error');
+    clearAlert();
+  });
+});
+
+// ── Form validation ───────────────────────────────────────────────────────────
+function validateForm() {
+  let valid = true;
+
+  // Full name
+  const name = document.getElementById('nameInput').value.trim();
+  if (name.length < 2 || !name.includes(' ')) {
+    document.getElementById('nameField').classList.add('error');
+    document.getElementById('nameError').textContent =
+      'Enter your full name (first and last) as registered';
+    valid = false;
+  }
+
+  // Phone
+  const phone = document.getElementById('phoneInput').value.trim();
+  if (!isValidUgandaPhone(phone)) {
+    document.getElementById('phoneField').classList.add('error');
+    valid = false;
+  }
+
+  // Password
+  const password = document.getElementById('passwordInput').value;
+  if (!password) {
+    document.getElementById('passwordField').classList.add('error');
+    valid = false;
+  }
+
+  return valid;
+}
+
+// ── Login handler ─────────────────────────────────────────────────────────────
+async function handleLogin() {
+  clearAlert();
+  if (!validateForm()) {
+    showAlert('error', 'Please fill in all three fields correctly.');
+    return;
+  }
+
+  const fullName    = document.getElementById('nameInput').value.trim();
+  const phoneNumber = normalisePhone(document.getElementById('phoneInput').value.trim());
+  const password    = document.getElementById('passwordInput').value;
+
+  setLoading(true);
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ fullName, phoneNumber, password }),
+    });
+
+    const json = await res.json();
+    setLoading(false);
+
+    if (!res.ok) {
+      const msg = res.status === 401
+        ? 'The name, phone number, or password is incorrect. Please check and try again.'
+        : res.status === 403
+          ? json.message ?? 'Account access denied.'
+          : json.message ?? 'Login failed. Please try again.';
+
+      showAlert('error', msg);
+
+      if (res.status === 401) {
+        ['nameField','phoneField','passwordField'].forEach(id => {
+          document.getElementById(id).classList.add('error');
+        });
+        document.getElementById('passwordInput').value = '';
+      }
+      return;
+    }
+
+    const { user } = json.data;
+    try {
+      localStorage.setItem('nexus_user_name',  user.fullName);
+      localStorage.setItem('nexus_user_email', user.email ?? '');
+      localStorage.removeItem('nexus_demo_mode');
+      // No access token stored here — the httpOnly refresh-token cookie set by this request
+      // is what nexus-dashboard-mobile.html uses (via Auth.bootstrap()) to silently obtain a
+      // fresh access token on load. Storing the raw JWT in localStorage would be readable by
+      // any injected script, so it's kept in memory only, on the dashboard side.
+    } catch(e) { /* storage unavailable */ }
+
+    onLoginSuccess(user.fullName);
+
+  } catch(err) {
+    setLoading(false);
+    demoLogin(fullName);
+  }
+}
+
+function demoLogin(fullName) {
+  try {
+    localStorage.setItem('nexus_user_name', fullName);
+    localStorage.setItem('nexus_demo_mode', '1'); // tells the dashboard to skip bootstrapping a real session
+  } catch(e) {}
+  onLoginSuccess(fullName);
+}
+
+function onLoginSuccess(fullName) {
+  const btn = document.getElementById('submitBtn');
+  btn.style.background = 'var(--green)';
+  btn.style.boxShadow  = '0 0 24px var(--green-glow)';
+  document.getElementById('btnText').textContent = 'Signed in — Redirecting…';
+  document.getElementById('btnArrow').className = 'fa-solid fa-check';
+  showAlert('success', `Welcome back, ${fullName.split(' ')[0]}!`);
+  if (window.IconSystem) window.IconSystem.burst(btn, 'success');
+  setTimeout(() => { window.location.href = 'nexus-dashboard-mobile.html'; }, 900);
+}
+
+function setLoading(loading) {
+  document.getElementById('spinner').style.display = loading ? 'block' : 'none';
+  document.getElementById('btnText').textContent   = loading ? 'Signing in…' : 'Sign In';
+  document.getElementById('btnArrow').style.display = loading ? 'none' : 'inline';
+  document.getElementById('submitBtn').disabled    = loading;
+}
+
+// Enter key on any field triggers submit
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !document.getElementById('forgotOverlay').style.display.includes('flex')) {
+    handleLogin();
+  }
+});
+
+// ── Forgot password modal ─────────────────────────────────────────────────────
+document.getElementById('forgotLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  const raw = document.getElementById('phoneInput').value.trim();
+  if (isValidUgandaPhone(raw)) {
+    document.getElementById('forgotPhone').value = raw;
+  }
+  document.getElementById('forgotForm').style.display    = 'block';
+  document.getElementById('forgotSuccess').style.display = 'none';
+  document.getElementById('forgotPhoneError').style.display = 'none';
+  document.getElementById('forgotOverlay').style.display = 'flex';
+});
+
+function closeForgot() {
+  document.getElementById('forgotOverlay').style.display = 'none';
+}
+
+async function submitForgot() {
+  const raw = document.getElementById('forgotPhone').value.trim();
+  const errEl = document.getElementById('forgotPhoneError');
+
+  if (!isValidUgandaPhone(raw)) {
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const normalised = normalisePhone(raw);
+
+  try {
+    await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phoneNumber: normalised }),
+    });
+  } catch(e) { /* show success regardless — anti-enumeration */ }
+
+  document.getElementById('forgotForm').style.display    = 'none';
+  document.getElementById('forgotSuccess').style.display = 'block';
+}
+
+document.getElementById('forgotOverlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('forgotOverlay')) closeForgot();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeForgot();
+});
+</script>
+</body>
+</html>

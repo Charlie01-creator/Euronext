@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Your Account — NexusCapital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="prefetch" href="login-1.html">
+<style>
+/* ─── RESET & ROOT ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black:      #060608;
+  --bg:         #0A0B0F;
+  --bg2:        #0D0F15;
+  --surface:    #12141C;
+  --surface2:   #191C27;
+  --border:     rgba(255,255,255,0.07);
+  --border2:    rgba(255,255,255,0.12);
+  --blue:       #3B82F6;
+  --blue-glow:  rgba(59,130,246,0.25);
+  --blue-dim:   rgba(59,130,246,0.12);
+  --cyan:       #06B6D4;
+  --green:      #10B981;
+  --green-glow: rgba(16,185,129,0.2);
+  --red:        #EF4444;
+  --gold:       #F59E0B;
+  --gold-glow:  rgba(245,158,11,0.2);
+  --purple:     #8B5CF6;
+  --white:      #FFFFFF;
+  --white-80:   rgba(255,255,255,0.8);
+  --white-60:   rgba(255,255,255,0.6);
+  --white-40:   rgba(255,255,255,0.4);
+  --white-20:   rgba(255,255,255,0.2);
+  --white-10:   rgba(255,255,255,0.1);
+  --white-05:   rgba(255,255,255,0.05);
+  --font-display: 'Inter', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --ease-premium: cubic-bezier(.16,1,.3,1);
+  --ease-out-soft: cubic-bezier(.25,.46,.45,.94);
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--black);
+  color: var(--white-80);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+a { text-decoration: none; color: inherit; }
+img { display: block; max-width: 100%; }
+button { cursor: pointer; border: none; background: none; font: inherit; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 2px; }
+
+/* ─── BACKGROUND ────────────────────────────────────────────── */
+.bg-orb {
+  position: fixed; border-radius: 50%; filter: blur(90px);
+  pointer-events: none; z-index: 0;
+  animation: orb-float 9s ease-in-out infinite;
+}
+.bg-orb-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(59,130,246,0.16) 0%, transparent 70%);
+  top: -150px; left: -150px;
+}
+.bg-orb-2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(139,92,246,0.13) 0%, transparent 70%);
+  bottom: -120px; right: -100px;
+  animation-delay: -4s;
+}
+@keyframes orb-float { 0%,100%{transform:translate(0,0)} 33%{transform:translate(20px,-20px)} 66%{transform:translate(-15px,15px)} }
+
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
+}
+
+/* ─── TOP BAR ───────────────────────────────────────────────── */
+.topbar {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  max-width: 1440px; margin: 0 auto;
+}
+.topbar-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-display); font-size: 20px; font-weight: 800;
+  color: var(--white); letter-spacing: -0.02em;
+}
+.topbar-logo-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 900; color: #fff;
+  box-shadow: 0 0 16px var(--blue-glow);
+}
+.topbar-link {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 500; color: var(--white-60);
+  transition: color 0.15s ease;
+}
+.topbar-link:hover { color: var(--white); }
+
+/* ─── LAYOUT ────────────────────────────────────────────────── */
+.page {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1.05fr 1fr;
+  min-height: calc(100vh - 84px);
+  max-width: 1440px; margin: 0 auto;
+  align-items: center;
+  gap: 60px;
+  padding: 20px 32px 60px;
+}
+
+/* ─── LEFT: FORM ────────────────────────────────────────────── */
+.form-col { display: flex; flex-direction: column; gap: 28px; max-width: 480px; }
+
+.form-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px 6px 8px; border-radius: 100px;
+  background: var(--blue-dim); border: 1px solid rgba(59,130,246,0.25);
+  width: fit-content;
+}
+.form-eyebrow-icon {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--blue); display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+}
+.form-eyebrow-text {
+  font-family: var(--font-mono); font-size: 12px; color: var(--blue);
+  letter-spacing: 0.05em;
+}
+
+.form-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.5vw, 44px);
+  font-weight: 800; line-height: 1.15; letter-spacing: -0.02em;
+  color: var(--white);
+}
+.form-title span {
+  background: linear-gradient(135deg, var(--blue), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.form-sub { font-size: 15px; color: var(--white-60); line-height: 1.65; letter-spacing: -0.005em; }
+
+/* card */
+.form-card {
+  padding: var(--space-6);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+}
+
+.form-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);
+}
+.field { display: flex; flex-direction: column; gap: var(--space-2); }
+.field.full { grid-column: 1 / -1; }
+.field label {
+  font-size: 12px; font-weight: 600; color: var(--white-60);
+  font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em;
+}
+.input-wrap { position: relative; }
+.input-wrap .icon-orb {
+  position: absolute; left: 6px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 8px; font-size: 12px;
+  pointer-events: none; cursor: default;
+}
+.input-wrap:focus-within .icon-orb {
+  color: var(--blue); border-color: rgba(59,130,246,0.35);
+  box-shadow: 0 0 0 3px var(--blue-dim), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.field input,
+.field select {
+  width: 100%;
+  padding: 14px 14px 14px 42px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 16px;
+  transition: border-color .25s var(--ease-out-soft), box-shadow .25s var(--ease-out-soft), background .25s var(--ease-out-soft);
+  appearance: none;
+}
+.field input::placeholder { color: var(--white-40); }
+.field input:focus, .field select:focus {
+  outline: none; border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-dim);
+  background: var(--surface);
+}
+.field select {
+  cursor: pointer;
+  padding-right: 40px;
+}
+.field select option { background: var(--surface2); color: var(--white); }
+.select-wrap .chevron {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: var(--white-40); pointer-events: none;
+}
+
+/* phone field with country code */
+.phone-field {
+  display: grid; grid-template-columns: 110px 1fr; gap: 8px;
+}
+.phone-code {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px; height: 50px;
+  background: var(--icon-glass-bg, rgba(255,255,255,0.045));
+  border: 1px solid var(--icon-glass-border, var(--border2));
+  border-radius: 10px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--icon-shadow, none);
+  font-family: var(--font-mono); font-size: 13px; color: var(--white);
+  position: relative; cursor: pointer;
+  transition: transform .3s var(--ease-premium), border-color .3s var(--ease-premium), background .3s var(--ease-premium);
+}
+.phone-code:hover {
+  transform: translateY(-1px);
+  border-color: var(--icon-glass-border-hover, rgba(255,255,255,0.22));
+  background: rgba(255,255,255,0.07);
+}
+.phone-code:focus-within {
+  border-color: rgba(59,130,246,0.4);
+  box-shadow: 0 0 0 3px var(--blue-dim);
+}
+.phone-code select {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.phone-code .flag {
+  font-size: 15px; line-height: 1; display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 6px; background: rgba(255,255,255,0.06); flex-shrink: 0;
+}
+.phone-code #phoneCode { font-weight: 500; letter-spacing: -.01em; }
+
+/* password strength */
+.pw-strength { display: flex; gap: 4px; margin-top: 6px; }
+.pw-bar { height: 4px; flex: 1; border-radius: 4px; background: var(--surface2); transition: background 0.25s ease; }
+.pw-hint { font-size: 12px; color: var(--white-40); margin-top: 4px; }
+
+/* toggle password visibility */
+.toggle-pw {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 30px; height: 30px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--white-40); cursor: pointer;
+  background: transparent; border: 1px solid transparent;
+  transition: color .2s var(--ease-premium), background .2s var(--ease-premium), border-color .2s var(--ease-premium);
+}
+.toggle-pw:hover { color: var(--white); background: rgba(255,255,255,0.06); border-color: var(--border2); }
+.toggle-pw:active { transform: translateY(-50%) scale(.92); }
+#password, #confirmPassword { padding-right: 44px; }
+
+/* checkbox */
+.checkbox-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: var(--white-60); line-height: 1.6;
+}
+.checkbox-row input {
+  width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
+  accent-color: var(--blue); cursor: pointer;
+}
+.checkbox-row a { color: var(--blue); transition: color 0.15s ease; }
+.checkbox-row a:hover { color: var(--cyan); text-decoration: underline; }
+
+/* submit */
+.submit-btn {
+  width: 100%; padding: 15px 24px; border-radius: 10px;
+  font-family: var(--font-display); font-size: 15px; font-weight: 700;
+  background: var(--blue); color: #fff;
+  box-shadow: 0 0 24px var(--blue-glow);
+  transition: transform .3s var(--ease-premium), background .3s var(--ease-premium), box-shadow .3s var(--ease-premium);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.submit-btn:hover { background: #60A5FA; box-shadow: 0 0 36px rgba(59,130,246,0.45); transform: translateY(-1px); }
+.submit-btn:active { transform: translateY(0); }
+
+/* divider */
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 12px; color: var(--white-40); font-family: var(--font-mono);
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border2);
+}
+
+/* social buttons */
+.social-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.social-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  font-size: 13px; font-weight: 600; color: var(--white-80);
+  transition: transform .25s var(--ease-premium), background .25s var(--ease-premium), border-color .25s var(--ease-premium);
+}
+.social-btn:hover { border-color: var(--border2); background: var(--surface); transform: translateY(-1px); }
+
+/* login link */
+.login-link { text-align: center; font-size: 14px; color: var(--white-60); }
+.login-link a { color: var(--blue); font-weight: 600; transition: color 0.2s var(--ease-premium); }
+.login-link a:hover { color: var(--cyan); }
+
+/* keyboard accessibility */
+a:focus-visible, button:focus-visible, .submit-btn:focus-visible, .social-btn:focus-visible {
+  outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 6px;
+}
+.checkbox-row input:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* error message */
+.error-msg {
+  font-size: 12px; color: var(--red); margin-top: 4px;
+  display: none;
+}
+.field.error input, .field.error select { border-color: var(--red); animation: fieldShake .35s var(--ease-premium); }
+.field.error .error-msg { display: block; animation: errorIn .3s var(--ease-premium); }
+@keyframes errorIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fieldShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* ─── RIGHT: VISUAL PANEL ───────────────────────────────────── */
+.visual-col { display: flex; flex-direction: column; gap: 16px; }
+
+.visual-card {
+  padding: 24px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  backdrop-filter: blur(24px);
+}
+.visual-card-title {
+  font-family: var(--font-display); font-size: 18px; font-weight: 700;
+  color: var(--white); margin-bottom: 4px;
+}
+.visual-card-sub { font-size: 13px; color: var(--white-40); margin-bottom: 20px; }
+
+/* trust stats */
+.visual-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.visual-stat {
+  padding: 16px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.visual-stat-val {
+  font-family: var(--font-display); font-size: 24px; font-weight: 800;
+  color: var(--white); letter-spacing: -0.02em;
+}
+.visual-stat-lbl { font-size: 12px; color: var(--white-40); margin-top: 4px; }
+
+/* benefit list */
+.benefit-list { display: flex; flex-direction: column; gap: 14px; }
+.benefit-item { display: flex; align-items: flex-start; gap: 14px; }
+.benefit-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+  background: var(--blue-dim); border: 1px solid rgba(59,130,246,0.25);
+}
+.benefit-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+.benefit-desc { font-size: 12px; color: var(--white-40); line-height: 1.6; }
+
+/* security badge */
+.security-strip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px; border-radius: 12px;
+  background: var(--green-glow); border: 1px solid rgba(16,185,129,0.2);
+}
+.security-strip-icon { font-size: 18px; }
+.security-strip-text { font-size: 12px; color: var(--green); font-family: var(--font-mono); }
+
+/* fade up */
+.fade-up {
+  opacity: 0; transform: translateY(16px);
+  animation: fadeUp 0.8s var(--ease-premium) forwards;
+}
+.fade-up.d1 { animation-delay: 0.08s; }
+.fade-up.d2 { animation-delay: 0.16s; }
+.fade-up.d3 { animation-delay: 0.24s; }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .page { grid-template-columns: 1fr; gap: 40px; padding-top: 0; }
+  .visual-col { display: none; }
+  .form-col { max-width: 560px; margin: 0 auto; width: 100%; }
+}
+@media (max-width: 720px) {
+  .topbar { padding: 20px 24px; }
+  .page { padding: 0 24px 40px; }
+  .form-card { padding: 26px 20px; }
+}
+@media (max-width: 560px) {
+  .topbar { padding: 18px 20px; }
+  .page { padding: 0 20px 36px; }
+  .form-card { padding: 24px 18px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .phone-field { grid-template-columns: 90px 1fr; }
+  .social-row { grid-template-columns: 1fr; }
+  .form-title { font-size: 28px; }
+}
+@media (max-width: 380px) {
+  .phone-field { grid-template-columns: 82px 1fr; gap: 6px; }
+  .phone-code { padding: 0 8px; font-size: 12px; }
+}
+
+/* ===== ICON SYSTEM (inlined) ===== */
+:root{
+  --icon-glass-bg: rgba(255,255,255,0.045);
+  --icon-glass-border: rgba(255,255,255,0.10);
+  --icon-glass-border-hover: rgba(255,255,255,0.22);
+  --icon-shadow: 0 4px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+  --icon-blue: #3B82F6;
+  --icon-green: #10B981;
+  --icon-amber: #F59E0B;
+  --icon-red: #EF4444;
+  --icon-transition: 220ms cubic-bezier(.2,.8,.2,1);
+}
+@media (prefers-reduced-motion: reduce){
+  .icon-orb, .icon-orb *, [data-float], [data-pulse]{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  .fade-up{ animation-duration:.001ms !important; opacity:1 !important; transform:none !important; }
+  .bg-orb, .form-eyebrow-icon, .veil-mark{ animation:none !important; }
+  #pageVeil, body.page-leaving .page, body.page-leaving .topbar{ transition-duration:.001ms !important; filter:none !important; }
+  .field.error input, .field.error select{ animation:none !important; }
+}
+.icon-orb{
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; width: 40px; height: 40px; border-radius: 12px;
+  color: rgba(255,255,255,0.75); background: var(--icon-glass-bg);
+  border: 1px solid var(--icon-glass-border); box-shadow: var(--icon-shadow);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  cursor: pointer; overflow: hidden;
+  transition: transform var(--icon-transition), background var(--icon-transition),
+              border-color var(--icon-transition), box-shadow var(--icon-transition), color var(--icon-transition);
+  will-change: transform;
+}
+.icon-orb i{ font-size: 16px; line-height: 1; transition: transform var(--icon-transition); pointer-events:none; }
+.icon-orb--xs{ width: 30px; height: 30px; border-radius: 9px; } .icon-orb--xs i{ font-size: 12.5px; }
+.icon-orb--sm{ width: 38px; height: 38px; border-radius: 11px; } .icon-orb--sm i{ font-size: 15px; }
+.icon-orb--md{ width: 46px; height: 46px; border-radius: 13px; } .icon-orb--md i{ font-size: 17px; }
+.icon-orb--lg{ width: 58px; height: 58px; border-radius: 16px; } .icon-orb--lg i{ font-size: 22px; }
+.icon-orb:hover{
+  transform: translateY(-3px) scale(1.07); color: #fff;
+  border-color: var(--icon-glass-border-hover); background: rgba(255,255,255,0.08);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.icon-orb:hover i{ transform: scale(1.1) rotate(-4deg); }
+.icon-orb:active{ transform: translateY(-1px) scale(0.96); transition-duration: 80ms; }
+.icon-orb:focus-visible{ outline: 2px solid var(--icon-blue); outline-offset: 2px; }
+.icon-orb[data-magnetic]{ transform: translate(var(--mx, 0), var(--my, 0)); }
+.icon-orb[data-magnetic]:hover{ transform: translate(var(--mx, 0), var(--my, 0)) translateY(-3px) scale(1.07); }
+.icon-orb--active{
+  color: #fff; border-color: rgba(59,130,246,0.5); background: rgba(59,130,246,0.14);
+  box-shadow: 0 0 0 1px rgba(59,130,246,0.3), 0 0 22px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.icon-orb--active::after{
+  content:''; position:absolute; inset:-1px; border-radius: inherit;
+  border: 1px solid rgba(59,130,246,0.6); animation: activeRing 2.4s ease-in-out infinite; pointer-events:none;
+}
+@keyframes activeRing{ 0%,100%{ opacity:.55; transform: scale(1); } 50%{ opacity:0; transform: scale(1.18); } }
+.icon-glow-blue{ color: var(--icon-blue); border-color: rgba(59,130,246,0.35); box-shadow: 0 0 16px rgba(59,130,246,0.28), var(--icon-shadow); }
+.icon-glow-green{ color: var(--icon-green); border-color: rgba(16,185,129,0.4); box-shadow: 0 0 18px rgba(16,185,129,0.35), var(--icon-shadow); animation: glowPulseGreen 2.8s ease-in-out infinite; }
+.icon-glow-amber{ color: var(--icon-amber); border-color: rgba(245,158,11,0.4); box-shadow: 0 0 18px rgba(245,158,11,0.35), var(--icon-shadow); animation: glowPulseAmber 2.8s ease-in-out infinite; }
+.icon-glow-red{ color: var(--icon-red); border-color: rgba(239,68,68,0.4); box-shadow: 0 0 18px rgba(239,68,68,0.35), var(--icon-shadow); animation: glowPulseRed 2s ease-in-out infinite; }
+@keyframes glowPulseGreen{ 0%,100%{ box-shadow:0 0 14px rgba(16,185,129,0.3), var(--icon-shadow);} 50%{ box-shadow:0 0 26px rgba(16,185,129,0.5), var(--icon-shadow);} }
+@keyframes glowPulseAmber{ 0%,100%{ box-shadow:0 0 14px rgba(245,158,11,0.3), var(--icon-shadow);} 50%{ box-shadow:0 0 26px rgba(245,158,11,0.5), var(--icon-shadow);} }
+@keyframes glowPulseRed{ 0%,100%{ box-shadow:0 0 14px rgba(239,68,68,0.35), var(--icon-shadow);} 50%{ box-shadow:0 0 28px rgba(239,68,68,0.6), var(--icon-shadow);} }
+[data-float]{ animation: iconFloat 4.5s ease-in-out infinite; }
+[data-float]:nth-child(odd){ animation-delay: -1.6s; }
+[data-float]:nth-child(3n){ animation-delay: -3s; }
+@keyframes iconFloat{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-5px); } }
+.icon-orb[data-magnetic][data-float]{ animation: none; }
+[data-pulse]{ animation: iconPulse 1.8s ease-in-out infinite; transform-origin: 50% 40%; }
+@keyframes iconPulse{ 0%,100%{ transform: scale(1) rotate(0); } 10%{ transform: scale(1.08) rotate(-8deg); } 20%{ transform: scale(1.08) rotate(8deg); } 30%{ transform: scale(1.04) rotate(-4deg); } 40%{ transform: scale(1) rotate(0); } }
+.icon-spin{ animation: iconSpin 0.8s linear infinite; }
+@keyframes iconSpin{ to{ transform: rotate(360deg); } }
+.icon-bounce{ animation: iconBounce 0.9s cubic-bezier(.28,1.4,.5,1) 1; }
+@keyframes iconBounce{ 0%{ transform: scale(1) translateY(0); } 30%{ transform: scale(1.25) translateY(-10px); } 50%{ transform: scale(0.92) translateY(2px); } 70%{ transform: scale(1.08) translateY(-4px); } 100%{ transform: scale(1) translateY(0); } }
+.icon-ripple{
+  position:absolute; border-radius:50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 70%);
+  transform: scale(0); pointer-events:none; animation: rippleOut 650ms ease-out forwards;
+}
+@keyframes rippleOut{ 0%{ transform: scale(0); opacity: .55; } 100%{ transform: scale(2.6); opacity: 0; } }
+.icon-orb[data-badge]::before{
+  content: attr(data-badge); position:absolute; top:-6px; right:-6px;
+  min-width:16px; height:16px; padding:0 4px; border-radius:100px; background: var(--icon-red);
+  color:#fff; font-family:'DM Mono',monospace; font-size:10px; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 0 0 2px rgba(10,11,15,0.9), 0 0 10px rgba(239,68,68,0.6);
+  animation: badgePop 2.6s ease-in-out infinite;
+}
+@keyframes badgePop{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.15);} }
+.icon-orb[data-tip]{ position:relative; }
+.icon-orb[data-tip]::after{
+  content: attr(data-tip); position:absolute; bottom: calc(100% + 10px); left:50%;
+  transform: translateX(-50%) translateY(4px); background: rgba(15,17,24,0.96);
+  border: 1px solid rgba(255,255,255,0.12); color: #fff; font-family:'DM Sans',sans-serif; font-size:11.5px; font-weight:500;
+  padding: 5px 10px; border-radius: 7px; white-space: nowrap; opacity:0; pointer-events:none;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4); transition: opacity 160ms ease, transform 160ms ease; z-index: 20;
+}
+.icon-orb[data-tip]:hover::after{ opacity:1; transform: translateX(-50%) translateY(0); }
+.icon-dock{
+  display:flex; flex-wrap:wrap; gap:10px; padding:16px; border-radius:18px;
+  background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); backdrop-filter: blur(18px);
+}
+#particleLayer{ position:fixed; inset:0; pointer-events:none; z-index:9999; }
+.icon-particle{ position:absolute; width:5px; height:5px; border-radius:50%; animation: particleFly 750ms cubic-bezier(.15,.6,.3,1) forwards; }
+@keyframes particleFly{ 0%{ transform: translate(0,0) scale(1); opacity:1; } 100%{ transform: translate(var(--px), var(--py)) scale(0); opacity:0; } }
+/* ===== END ICON SYSTEM ===== */
+
+/* ── Page transition veil ─────────────────────────────────────── */
+#pageVeil{
+  position:fixed;inset:0;z-index:9998;background:var(--black);
+  display:flex;align-items:center;justify-content:center;
+  opacity:1;pointer-events:none;
+  transition:opacity .45s var(--ease-premium);
+}
+#pageVeil.veil-hidden{opacity:0}
+#pageVeil.veil-entering{pointer-events:all;opacity:1}
+.veil-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:900;color:#fff;
+  font-size:17px;box-shadow:0 0 24px var(--blue-glow);
+  animation:veilPulse 1s var(--ease-out-soft) infinite alternate;
+}
+@keyframes veilPulse{ 0%{ transform:scale(1); opacity:.9 } 100%{ transform:scale(1.08); opacity:1 } }
+body.page-leaving .page,body.page-leaving .topbar{
+  transition:opacity .35s var(--ease-premium),transform .35s var(--ease-premium),filter .35s var(--ease-premium);
+  opacity:0;transform:translateY(-8px);filter:blur(4px);
+}
+</style>
+</head>
+<body>
+<div id="pageVeil"><div class="veil-mark">N</div></div>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-grid"></div>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <a href="nexus-invest.html" class="topbar-logo">
+    <div class="topbar-logo-icon">N</div>
+    NexusCapital
+  </a>
+  <a href="nexus-invest.html" class="topbar-link"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+</div>
+
+<!-- Page -->
+<div class="page">
+
+  <!-- LEFT: FORM -->
+  <div class="form-col">
+    <div class="fade-up">
+      <div class="form-eyebrow">
+        <div class="form-eyebrow-icon"><i class="fa-solid fa-sparkles" style="font-size:9px"></i></div>
+        <span class="form-eyebrow-text">Free to Join · 2-Minute Setup</span>
+      </div>
+    </div>
+    <div class="fade-up d1">
+      <h1 class="form-title">Create Your <span>Investor Account</span></h1>
+      <p class="form-sub" style="margin-top:12px">Join 142,000+ investors building wealth across global markets. Set up your account in minutes — no fees to register.</p>
+    </div>
+
+    <div class="form-card fade-up d2">
+      <form id="registerForm" novalidate>
+        <div class="form-grid" style="margin-bottom:16px">
+
+          <!-- Full Name -->
+          <div class="field full">
+            <label for="fullName">Full Name</label>
+            <div class="input-wrap">
+              <span class="icon-orb icon-orb--xs"><i class="fa-solid fa-user"></i></span>
+              <input type="text" id="fullName" name="fullName" placeholder="e.g. Sarah Namutebi" autocomplete="name" required>
+            </div>
+            <span class="error-msg">Please enter your full name.</span>
+          </div>
+
+          <!-- Email -->
+          <div class="field full">
+            <label for="email">Email Address</label>
+            <div class="input-wrap">
+              <span class="icon-orb icon-orb--xs"><i class="fa-solid fa-envelope"></i></span>
+              <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+            </div>
+            <span class="error-msg">Please enter a valid email address.</span>
+          </div>
+
+          <!-- Country -->
+          <div class="field full">
+            <label for="country">Country of Residence</label>
+            <div class="input-wrap select-wrap">
+              <span class="icon-orb icon-orb--xs"><i class="fa-solid fa-earth-africa"></i></span>
+              <select id="country" name="country" required>
+                <option value="" disabled selected>Select your country</option>
+                <option value="UG">Uganda</option>
+                <option value="KE">Kenya</option>
+                <option value="TZ">Tanzania</option>
+                <option value="RW">Rwanda</option>
+                <option value="NG">Nigeria</option>
+                <option value="GH">Ghana</option>
+                <option value="ZA">South Africa</option>
+                <option value="US">United States</option>
+                <option value="GB">United Kingdom</option>
+                <option value="CA">Canada</option>
+                <option value="AU">Australia</option>
+                <option value="DE">Germany</option>
+                <option value="FR">France</option>
+                <option value="AE">United Arab Emirates</option>
+                <option value="other">Other</option>
+              </select>
+              <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+            </div>
+            <span class="error-msg">Please select your country.</span>
+          </div>
+
+          <!-- Phone -->
+          <div class="field full">
+            <label for="phone">Phone Number</label>
+            <div class="phone-field">
+              <div class="phone-code">
+                <span class="flag" id="phoneFlag">🇺🇬</span>
+                <span id="phoneCode">+256</span>
+                <select id="phoneCountrySelect">
+                  <option value="+256" data-flag="🇺🇬">Uganda (+256)</option>
+                  <option value="+254" data-flag="🇰🇪">Kenya (+254)</option>
+                  <option value="+255" data-flag="🇹🇿">Tanzania (+255)</option>
+                  <option value="+250" data-flag="🇷🇼">Rwanda (+250)</option>
+                  <option value="+234" data-flag="🇳🇬">Nigeria (+234)</option>
+                  <option value="+233" data-flag="🇬🇭">Ghana (+233)</option>
+                  <option value="+27" data-flag="🇿🇦">South Africa (+27)</option>
+                  <option value="+1" data-flag="🇺🇸">United States (+1)</option>
+                  <option value="+44" data-flag="🇬🇧">United Kingdom (+44)</option>
+                  <option value="+1" data-flag="🇨🇦">Canada (+1)</option>
+                  <option value="+61" data-flag="🇦🇺">Australia (+61)</option>
+                  <option value="+49" data-flag="🇩🇪">Germany (+49)</option>
+                  <option value="+33" data-flag="🇫🇷">France (+33)</option>
+                  <option value="+971" data-flag="🇦🇪">UAE (+971)</option>
+                </select>
+              </div>
+              <div class="input-wrap">
+                <span class="icon-orb icon-orb--xs"><i class="fa-solid fa-phone"></i></span>
+                <input type="tel" id="phone" name="phone" placeholder="700 123 456" autocomplete="tel" required>
+              </div>
+            </div>
+            <span class="error-msg" id="phoneError">Please enter a valid phone number.</span>
+          </div>
+
+          <!-- Password -->
+          <div class="field full">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <span class="icon-orb icon-orb--xs"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" id="password" name="password" placeholder="Create a strong password" autocomplete="new-password" required>
+              <button type="button" class="toggle-pw" onclick="togglePassword('password', this)"><i class="fa-solid fa-eye"></i></button>
+            </div>
+            <div class="pw-strength">
+              <div class="pw-bar" id="pwBar1"></div>
+              <div class="pw-bar" id="pwBar2"></div>
+              <div class="pw-bar" id="pwBar3"></div>
+              <div class="pw-bar" id="pwBar4"></div>
+            </div>
+            <div class="pw-hint" id="pwHint">Use 8+ characters with a mix of letters, numbers & symbols.</div>
+            <span class="error-msg">Password must be at least 8 characters.</span>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="field full">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrap">
+              <span class="icon-orb icon-orb--xs"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password" autocomplete="new-password" required>
+              <button type="button" class="toggle-pw" onclick="togglePassword('confirmPassword', this)"><i class="fa-solid fa-eye"></i></button>
+            </div>
+            <span class="error-msg">Passwords do not match.</span>
+          </div>
+
+          <!-- Referral Code (optional) -->
+          <div class="field full">
+            <label for="referralCode">Referral Code <span style="text-transform:none;font-weight:400;color:var(--white-40)">(optional)</span></label>
+            <div class="input-wrap">
+              <span class="icon-orb icon-orb--xs"><i class="fa-solid fa-gift"></i></span>
+              <input type="text" id="referralCode" name="referralCode" placeholder="e.g. SARAH20" autocomplete="off" spellcheck="false" style="text-transform:uppercase">
+            </div>
+            <span class="pw-hint" id="referralHint">Have a code from a friend? Enter it here to unlock referral perks.</span>
+          </div>
+
+        </div>
+
+        <!-- Checkboxes -->
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px">
+          <label class="checkbox-row">
+            <input type="checkbox" id="terms" required>
+            <span>I agree to the <a href="#">Terms of Service</a>, <a href="#">Privacy Policy</a>, and confirm I am 18 years or older.</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="marketing">
+            <span>Send me market insights, product updates, and investment opportunities by email.</span>
+          </label>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span id="submitBtnText">Create Account</span> <i class="fa-solid fa-arrow-right" id="submitBtnIcon"></i>
+        </button>
+
+        <div style="height:20px"></div>
+        <div class="divider">OR SIGN UP WITH</div>
+        <div style="height:16px"></div>
+        <div class="social-row">
+          <button type="button" class="social-btn"><i class="fa-brands fa-google"></i> Google</button>
+          <button type="button" class="social-btn"><i class="fa-brands fa-apple"></i> Apple</button>
+        </div>
+
+        <div style="height:24px"></div>
+        <div class="login-link">Already have an account? <a href="login-1.html">Log in</a></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- RIGHT: VISUAL PANEL -->
+  <div class="visual-col">
+    <div class="visual-card fade-up d1">
+      <div class="visual-card-title">Why Investors Choose NexusCapital</div>
+      <div class="visual-card-sub">Everything you need to manage global wealth in one place.</div>
+      <div class="benefit-list">
+        <div class="benefit-item">
+          <div class="icon-orb icon-orb--sm icon-glow-blue" data-float data-magnetic><i class="fa-solid fa-earth-africa"></i></div>
+          <div>
+            <div class="benefit-title">Multi-Currency Accounts</div>
+            <div class="benefit-desc">Hold and trade in USD, GBP, EUR, UGX, CAD, and AUD — switch instantly.</div>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="icon-orb icon-orb--sm icon-glow-blue" data-float data-magnetic><i class="fa-solid fa-chart-line"></i></div>
+          <div>
+            <div class="benefit-title">Real-Time Market Access</div>
+            <div class="benefit-desc">Live data across equities, forex, crypto, and global indices.</div>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="icon-orb icon-orb--sm icon-glow-blue" data-float data-magnetic><i class="fa-solid fa-shield-halved"></i></div>
+          <div>
+            <div class="benefit-title">Bank-Grade Security</div>
+            <div class="benefit-desc">256-bit encryption, MFA, and segregated client funds at tier-1 banks.</div>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="icon-orb icon-orb--sm icon-glow-blue" data-float data-magnetic><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <div class="benefit-title">Instant Withdrawals</div>
+            <div class="benefit-desc">Move funds out via bank transfer, mobile money, or digital wallet.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="visual-card fade-up d2">
+      <div class="visual-stats">
+        <div class="visual-stat">
+          <div class="visual-stat-val">142K+</div>
+          <div class="visual-stat-lbl">Active Investors</div>
+        </div>
+        <div class="visual-stat">
+          <div class="visual-stat-val">$2.8B+</div>
+          <div class="visual-stat-lbl">Assets Managed</div>
+        </div>
+        <div class="visual-stat">
+          <div class="visual-stat-val">98</div>
+          <div class="visual-stat-lbl">Countries Supported</div>
+        </div>
+        <div class="visual-stat">
+          <div class="visual-stat-val">4.9★</div>
+          <div class="visual-stat-lbl">Average Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="security-strip fade-up d3">
+      <span class="icon-orb icon-orb--xs icon-glow-green" data-magnetic><i class="fa-solid fa-lock"></i></span>
+      <span class="security-strip-text">Your data is encrypted end-to-end and never shared with third parties.</span>
+    </div>
+  </div>
+
+</div>
+
+<div id="particleLayer"></div>
+
+<script>
+/* ==========================================================================
+   ICON SYSTEM — behavior layer (inlined). Magnetic hover, click ripple,
+   particle burst. Exposes window.IconSystem for manual triggers.
+   ========================================================================== */
+(function () {
+  'use strict';
+  const MAGNET_STRENGTH = 0.2;
+  const MAGNET_RADIUS = 60;
+
+  function initMagnetic() {
+    document.querySelectorAll('.icon-orb[data-magnetic]').forEach((el) => {
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        if (Math.hypot(dx, dy) > MAGNET_RADIUS) return;
+        el.style.setProperty('--mx', `${dx * MAGNET_STRENGTH}px`);
+        el.style.setProperty('--my', `${dy * MAGNET_STRENGTH}px`);
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.setProperty('--mx', '0px');
+        el.style.setProperty('--my', '0px');
+      });
+    });
+  }
+
+  function initRipple() {
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('.icon-orb');
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      const size = Math.max(rect.width, rect.height);
+      ripple.className = 'icon-ripple';
+      ripple.style.width = ripple.style.height = `${size}px`;
+      ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+      ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+      el.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+      if (el.dataset.burst) burst(el, el.dataset.burst);
+    });
+  }
+
+  function ensureParticleLayer() {
+    let layer = document.getElementById('particleLayer');
+    if (!layer) {
+      layer = document.createElement('div');
+      layer.id = 'particleLayer';
+      document.body.appendChild(layer);
+    }
+    return layer;
+  }
+
+  const BURST_COLORS = {
+    success: ['#10B981', '#34D399', '#6EE7B7'], green: ['#10B981', '#34D399', '#6EE7B7'],
+    gold: ['#F59E0B', '#FBBF24', '#FDE68A'], amber: ['#F59E0B', '#FBBF24', '#FDE68A'],
+    error: ['#EF4444', '#F87171', '#FCA5A5'], red: ['#EF4444', '#F87171', '#FCA5A5'],
+    blue: ['#3B82F6', '#60A5FA', '#93C5FD'],
+  };
+
+  function burst(originEl, kind = 'blue', count = 14) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const rect = originEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = BURST_COLORS[kind] || BURST_COLORS.blue;
+    const layer = ensureParticleLayer();
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('span');
+      p.className = 'icon-particle';
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
+      const dist = 40 + Math.random() * 50;
+      p.style.setProperty('--px', `${Math.cos(angle) * dist}px`);
+      p.style.setProperty('--py', `${Math.sin(angle) * dist}px`);
+      p.style.left = `${cx}px`;
+      p.style.top = `${cy}px`;
+      p.style.background = colors[i % colors.length];
+      p.style.boxShadow = `0 0 6px ${colors[i % colors.length]}`;
+      layer.appendChild(p);
+      p.addEventListener('animationend', () => p.remove());
+    }
+  }
+
+  function triggerBounce(el) {
+    el.classList.remove('icon-bounce');
+    void el.offsetWidth;
+    el.classList.add('icon-bounce');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initMagnetic();
+    initRipple();
+  });
+
+  window.IconSystem = { burst, bounce: triggerBounce };
+})();
+
+/* ── Page transition veil ─────────────────────────────────────── */
+(function () {
+  'use strict';
+  const veil = document.getElementById('pageVeil');
+  const TRANSITION_MS = 380;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => veil.classList.add('veil-hidden'));
+  });
+
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href$=".html"]');
+    if (!link) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || link.target === '_blank') return;
+    e.preventDefault();
+    document.body.classList.add('page-leaving');
+    veil.classList.remove('veil-hidden');
+    veil.classList.add('veil-entering');
+    setTimeout(() => { window.location.href = link.href; }, TRANSITION_MS);
+  });
+})();
+
+/* ─── PASSWORD VISIBILITY TOGGLE ──────────────────────────────── */
+function togglePassword(id, btn) {
+  const input = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'fa-solid fa-eye-slash';
+  } else {
+    input.type = 'password';
+    icon.className = 'fa-solid fa-eye';
+  }
+}
+
+/* ─── PHONE COUNTRY CODE SYNC ──────────────────────────────────── */
+const phoneSelect = document.getElementById('phoneCountrySelect');
+const phoneCodeLabel = document.getElementById('phoneCode');
+const phoneFlag = document.getElementById('phoneFlag');
+phoneSelect.addEventListener('change', () => {
+  const opt = phoneSelect.options[phoneSelect.selectedIndex];
+  phoneCodeLabel.textContent = opt.value;
+  phoneFlag.textContent = opt.dataset.flag;
+});
+
+/* ─── PASSWORD STRENGTH METER ─────────────────────────────────── */
+const pwInput = document.getElementById('password');
+const pwBars = [document.getElementById('pwBar1'), document.getElementById('pwBar2'), document.getElementById('pwBar3'), document.getElementById('pwBar4')];
+const pwHint = document.getElementById('pwHint');
+
+function scorePassword(pw) {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) score++;
+  return score;
+}
+
+pwInput.addEventListener('input', () => {
+  const score = scorePassword(pwInput.value);
+  const colors = ['#EF4444', '#F59E0B', '#3B82F6', '#10B981'];
+  const labels = [
+    'Weak — try adding numbers, symbols & uppercase letters.',
+    'Fair — add more characters or symbols to strengthen it.',
+    'Good — strong enough for most accounts.',
+    'Excellent — strong password.'
+  ];
+  pwBars.forEach((bar, i) => {
+    bar.style.background = i < score ? colors[Math.max(score - 1, 0)] : 'var(--surface2)';
+  });
+  pwHint.textContent = pwInput.value.length === 0
+    ? 'Use 8+ characters with a mix of letters, numbers & symbols.'
+    : labels[Math.max(score - 1, 0)];
+  pwHint.style.color = pwInput.value.length === 0 ? 'var(--white-40)' : colors[Math.max(score - 1, 0)];
+});
+
+/* ─── FORM VALIDATION ──────────────────────────────────────────── */
+const form = document.getElementById('registerForm');
+
+function setError(fieldEl, hasError) {
+  fieldEl.classList.toggle('error', hasError);
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  let valid = true;
+
+  // Full name
+  const fullName = document.getElementById('fullName');
+  const fullNameField = fullName.closest('.field');
+  const nameValid = fullName.value.trim().length >= 2 && fullName.value.trim().includes(' ');
+  setError(fullNameField, !nameValid);
+  if (!nameValid) valid = false;
+
+  // Email
+  const email = document.getElementById('email');
+  const emailField = email.closest('.field');
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+  setError(emailField, !emailValid);
+  if (!emailValid) valid = false;
+
+  // Country
+  const country = document.getElementById('country');
+  const countryField = country.closest('.field');
+  const countryValid = country.value !== '';
+  setError(countryField, !countryValid);
+  if (!countryValid) valid = false;
+
+  // Phone
+  const phone = document.getElementById('phone');
+  const phoneField = phone.closest('.field');
+  const digits = phone.value.replace(/\D/g, '');
+  const phoneValid = digits.length >= 7 && digits.length <= 12;
+  setError(phoneField, !phoneValid);
+  if (!phoneValid) valid = false;
+
+  // Password — must match the backend's actual requirement: 8+ chars, an uppercase letter, a number
+  const password = document.getElementById('password');
+  const passwordField = password.closest('.field');
+  const pwValid = password.value.length >= 8 && /[A-Z]/.test(password.value) && /[0-9]/.test(password.value);
+  setError(passwordField, !pwValid);
+  if (!pwValid) {
+    passwordField.querySelector('.error-msg').textContent = 'Password must be 8+ characters and include an uppercase letter and a number.';
+    valid = false;
+  }
+
+  // Confirm password
+  const confirmPassword = document.getElementById('confirmPassword');
+  const confirmField = confirmPassword.closest('.field');
+  const confirmValid = confirmPassword.value === password.value && confirmPassword.value !== '';
+  setError(confirmField, !confirmValid);
+  if (!confirmValid) valid = false;
+
+  // Terms
+  const terms = document.getElementById('terms');
+  if (!terms.checked) {
+    valid = false;
+    terms.closest('.checkbox-row').style.color = '#EF4444';
+  } else {
+    terms.closest('.checkbox-row').style.color = '';
+  }
+
+  if (!valid) {
+    return;
+  }
+
+  // ── Real registration ──────────────────────────────────────────
+  const API_BASE = '/api/v1';
+  const COUNTRY_NAMES = {
+    UG: 'Uganda', KE: 'Kenya', TZ: 'Tanzania', RW: 'Rwanda', NG: 'Nigeria', GH: 'Ghana',
+    ZA: 'South Africa', US: 'United States', GB: 'United Kingdom', CA: 'Canada',
+    AU: 'Australia', DE: 'Germany', FR: 'France', AE: 'United Arab Emirates', other: 'Other',
+  };
+
+  const dialCode = phoneCodeLabel.textContent.trim();
+  const localDigits = phone.value.replace(/\D/g, '');
+  const fullPhone = `${dialCode}${localDigits}`;
+  const countryName = COUNTRY_NAMES[country.value] || country.value;
+  const referralCodeValue = referralInput.value.trim() || undefined;
+
+  const btn = document.getElementById('submitBtn');
+  const btnText = document.getElementById('submitBtnText');
+  const btnIcon = document.getElementById('submitBtnIcon');
+  btnText.textContent = 'Creating your account...';
+  btnIcon.className = 'fa-solid fa-spinner icon-spin';
+  btn.style.opacity = '0.7';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      credentials: 'include', // accepts the httpOnly refresh-token cookie the backend sets on success
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: fullName.value.trim(),
+        email: email.value.trim(),
+        phone: fullPhone,
+        country: countryName,
+        password: password.value,
+        referralCode: referralCodeValue,
+      }),
+    });
+    const json = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      btn.style.opacity = '1';
+      btn.disabled = false;
+      btnText.textContent = 'Create Account';
+      btnIcon.className = 'fa-solid fa-arrow-right';
+
+      if (res.status === 409) {
+        setError(emailField, true);
+        emailField.querySelector('.error-msg').textContent = 'An account with this email already exists.';
+      } else if (res.status === 400 && /referral/i.test(json.message || '')) {
+        const referralField = referralInput.closest('.field');
+        setError(referralField, true);
+        referralHint.textContent = 'That referral code was not found — check it or leave it blank.';
+        referralHint.style.color = '#EF4444';
+      } else {
+        setError(emailField, true);
+        emailField.querySelector('.error-msg').textContent = json.message || 'Registration failed. Please try again.';
+      }
+      return;
+    }
+
+    btnText.textContent = 'Account Created — Redirecting...';
+    btnIcon.className = 'fa-solid fa-circle-check';
+    btn.style.opacity = '1';
+    btn.style.background = 'var(--green)';
+    btn.style.boxShadow = '0 0 24px var(--green-glow)';
+    if (window.IconSystem) window.IconSystem.burst(btn, 'success');
+
+    try { localStorage.setItem('nexus_user_name', json.data.user.fullName); } catch (e) { /* storage unavailable */ }
+    // No access token stored here — the httpOnly refresh cookie set by this request is what
+    // nexus-dashboard-mobile.html uses (via Auth.bootstrap()) to restore the session on load.
+    setTimeout(() => { window.location.href = 'nexus-dashboard-mobile.html'; }, 900);
+  } catch (err) {
+    btn.style.opacity = '1';
+    btn.disabled = false;
+    btnText.textContent = 'Create Account';
+    btnIcon.className = 'fa-solid fa-arrow-right';
+    setError(emailField, true);
+    emailField.querySelector('.error-msg').textContent = 'Could not reach the server. Check your connection and try again.';
+  }
+});
+
+/* ─── REFERRAL CODE (optional, no validation blocking) ─────────── */
+const referralInput = document.getElementById('referralCode');
+const referralHint = document.getElementById('referralHint');
+referralInput.addEventListener('input', () => {
+  const val = referralInput.value.trim();
+  if (val.length === 0) {
+    referralHint.textContent = 'Have a code from a friend? Enter it here to unlock referral perks.';
+    referralHint.style.color = 'var(--white-40)';
+  } else if (val.length < 4) {
+    referralHint.textContent = 'Referral codes are usually 4+ characters.';
+    referralHint.style.color = 'var(--white-40)';
+  } else {
+    referralHint.textContent = 'Looks good — this will be applied at signup.';
+    referralHint.style.color = 'var(--green)';
+  }
+});
+
+/* ─── LIVE FIELD VALIDATION (clear error on input) ─────────────── */
+document.querySelectorAll('.field input, .field select').forEach(el => {
+  el.addEventListener('input', () => el.closest('.field').classList.remove('error'));
+  el.addEventListener('change', () => el.closest('.field').classList.remove('error'));
+});
+</script>
+</body>
+</html>
