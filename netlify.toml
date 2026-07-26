@@ -1,0 +1,7 @@
+[build]
+  # Static frontend only — the API/database/Redis/Socket.IO backend doesn't run on Netlify.
+  # Deploying here gives a shareable link for the login/register/dashboard UI (dashboard's
+  # "Continue in Demo Mode" works fully); real login, deposits, withdrawals, etc. need a host
+  # that runs a persistent Node process — see README.md for that.
+  publish = "public"
+  command = "echo 'Static frontend only — no build step needed'"
