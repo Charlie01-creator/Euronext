@@ -36,7 +36,7 @@ export async function purchasePackage(userId: string, packageId: string, input: 
 
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   const principal = Number(pkg.minAmountUsd);
-  const projectedReturn = roundMoney(principal * (1 + Number(pkg.ratePercent) / 100));
+  const projectedReturn = roundMoney(principal + Number(pkg.fixedReturnUsd));
   const maturesAt = new Date(Date.now() + pkg.termDays * 24 * 60 * 60 * 1000);
 
   const { userPackage, transaction } = await prisma.$transaction(async (tx) => {

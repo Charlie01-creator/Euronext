@@ -544,6 +544,8 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .login-toggle a:hover{color:#60A5FA}
 .login-divider{display:flex;align-items:center;gap:10px;margin:18px 0;font-size:11px;color:var(--white-20);text-transform:uppercase;letter-spacing:.08em}
 .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border2)}
+/* ── Light fade before leaving to an external checkout page ─────── */
+body.external-redirecting{transition:opacity .3s ease;opacity:0}
 </style>
 </head>
 <body>
@@ -587,7 +589,7 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
        SIDEBAR — primary nav on desktop, off-canvas drawer on mobile
   ═══════════════════════════════════════════════════════════════ -->
   <aside class="sidebar" id="sidebar">
-    <a href="nexus-invest.html" class="sb-logo">
+    <a href="#" onclick="event.preventDefault();Router.go('dashboard','overview')" class="sb-logo">
       <div class="sb-logo-icon">N</div>
       <span class="sb-logo-text">NexusCapital</span>
     </a>
@@ -610,11 +612,10 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
     <a class="sb-link" data-page="deposit" data-tab="performance" onclick="Router.go('deposit','performance')"><span class="ic"><i class="fa-solid fa-chart-pie"></i></span> Performance</a>
 
     <div class="sb-section-label">Account</div>
-    <a class="sb-link" href="nexus-invest.html#markets"><span class="ic"><i class="fa-solid fa-earth-americas"></i></span> Markets</a>
     <a class="sb-link" data-page="account" data-tab="trust" onclick="Router.go('account','trust')"><span class="ic"><i class="fa-solid fa-gear"></i></span> Settings</a>
 
     <div class="sb-foot">
-      <div class="sb-user" onclick="window.location.href='nexus-invest.html'">
+      <div class="sb-user" onclick="Router.go('account','trust')">
         <div class="sb-user-avatar" id="sbAvatar">?</div>
         <div style="flex:1;min-width:0">
           <div class="sb-user-name" id="sbUserName">Loading…</div>
@@ -642,16 +643,13 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
       <div class="topbar-right">
         <div class="currency-switcher" id="currencySwitcher">
           <button class="currency-btn" onclick="Nav.toggleCurrency()">
-            <i class="fa-solid fa-coins"></i><span id="navCurrency">USD</span>
+            <i class="fa-solid fa-coins"></i><span id="navCurrency">UGX</span>
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
           </button>
           <div class="currency-dropdown" id="currencyDropdown">
-            <div class="currency-option selected" data-code="USD" onclick="Nav.selectCurrency(this)">USD — US Dollar</div>
-            <div class="currency-option" data-code="GBP" onclick="Nav.selectCurrency(this)">GBP — British Pound</div>
-            <div class="currency-option" data-code="EUR" onclick="Nav.selectCurrency(this)">EUR — Euro</div>
-            <div class="currency-option" data-code="UGX" onclick="Nav.selectCurrency(this)">UGX — Ugandan Shilling</div>
-            <div class="currency-option" data-code="CAD" onclick="Nav.selectCurrency(this)">CAD — Canadian Dollar</div>
-            <div class="currency-option" data-code="AUD" onclick="Nav.selectCurrency(this)">AUD — Australian Dollar</div>
+            <div class="currency-option selected" data-code="UGX" onclick="Nav.selectCurrency(this)">UGX — Ugandan Shilling</div>
+            <div class="currency-option" data-code="KES" onclick="Nav.selectCurrency(this)">KES — Kenyan Shilling</div>
+            <div class="currency-option" data-code="TZS" onclick="Nav.selectCurrency(this)">TZS — Tanzanian Shilling</div>
           </div>
         </div>
         <div style="position:relative">
@@ -1503,14 +1501,12 @@ const Toast = (() => {
 ══════════════════════════════════════════════════════════════════ */
 const Currency = (() => {
   const RATES = {
-    USD: { symbol: '$', rate: 1 },
-    GBP: { symbol: '£', rate: 0.79 },
-    EUR: { symbol: '€', rate: 0.92 },
+    USD: { symbol: '$', rate: 1 }, // internal fallback only — not shown as a selectable option
     UGX: { symbol: 'USh ', rate: 3700 },
-    CAD: { symbol: 'C$', rate: 1.36 },
-    AUD: { symbol: 'A$', rate: 1.52 },
+    KES: { symbol: 'KSh ', rate: 129.5 },
+    TZS: { symbol: 'TSh ', rate: 2630 },
   };
-  let current = 'USD';
+  let current = 'UGX';
 
   function format(usd, decimals) {
     const c = RATES[current] || RATES.USD;
@@ -1899,7 +1895,8 @@ const Deposit = (() => {
     try {
       const json = await Api.post('/deposits', { amount, currency, method, phone }, { 'Idempotency-Key': crypto.randomUUID() });
       if (json.data.redirectUrl) {
-        window.location.href = json.data.redirectUrl;
+        document.body.classList.add('external-redirecting');
+        setTimeout(() => { window.location.href = json.data.redirectUrl; }, 260);
       } else {
         Toast.show(`Check your phone for a payment prompt from ${methodLabel}.`, 'fa-mobile-screen-button');
       }
@@ -1958,21 +1955,21 @@ const Withdraw = (() => {
    DATA: package catalog — 15 tiers, return scales with investment size
 ══════════════════════════════════════════════════════════════════ */
 const PACKAGE_CATALOG = [
-  { name: 'Starter',       icon: 'fa-seedling',         color: '#94A3B8', min: 7,      term: '15-day term',  rate: 1.8 },
-  { name: 'Basic',         icon: 'fa-seedling',         color: '#06B6D4', min: 25,     term: '15-day term',  rate: 2.1 },
-  { name: 'Bronze',        icon: 'fa-award',            color: '#D97706', min: 50,     term: '1-month term', rate: 3.4 },
-  { name: 'Bronze Plus',   icon: 'fa-award',            color: '#D97706', min: 100,    term: '1-month term', rate: 3.9 },
-  { name: 'Silver',        icon: 'fa-medal',            color: '#94A3B8', min: 250,    term: '2-month term', rate: 6.2 },
-  { name: 'Silver Plus',   icon: 'fa-medal',            color: '#94A3B8', min: 500,    term: '2-month term', rate: 6.8 },
-  { name: 'Gold',          icon: 'fa-medal',            color: '#F59E0B', min: 1000,   term: '3-month term', rate: 8.5 },
-  { name: 'Gold Plus',     icon: 'fa-medal',            color: '#F59E0B', min: 2500,   term: '3-month term', rate: 9.4, featured: true },
-  { name: 'Platinum',      icon: 'fa-gem',              color: '#3B82F6', min: 5000,   term: '6-month term', rate: 11.6 },
-  { name: 'Platinum Plus', icon: 'fa-gem',              color: '#3B82F6', min: 10000,  term: '6-month term', rate: 12.5 },
-  { name: 'Diamond',       icon: 'fa-gem',              color: '#8B5CF6', min: 20000,  term: '9-month term', rate: 14.2 },
-  { name: 'Diamond Plus',  icon: 'fa-gem',              color: '#8B5CF6', min: 35000,  term: '9-month term', rate: 15.4 },
-  { name: 'Elite',         icon: 'fa-crown',            color: '#F59E0B', min: 50000,  term: '12-month term', rate: 17.8 },
-  { name: 'Elite Plus',    icon: 'fa-crown',            color: '#F59E0B', min: 75000,  term: '12-month term', rate: 19.1 },
-  { name: 'Institutional', icon: 'fa-building-columns', color: '#10B981', min: 100000, term: '12-month term', rate: 21.5 },
+  { name: 'Starter',       icon: 'fa-seedling',         color: '#94A3B8', min: 7,      term: '15-day term',  totalReturn: 0.14 },
+  { name: 'Basic',         icon: 'fa-seedling',         color: '#06B6D4', min: 25,     term: '15-day term',  totalReturn: 0.53 },
+  { name: 'Bronze',        icon: 'fa-award',            color: '#D97706', min: 50,     term: '1-month term', totalReturn: 1.75 },
+  { name: 'Bronze Plus',   icon: 'fa-award',            color: '#D97706', min: 100,    term: '1-month term', totalReturn: 3.90 },
+  { name: 'Silver',        icon: 'fa-medal',            color: '#94A3B8', min: 250,    term: '2-month term', totalReturn: 15.50 },
+  { name: 'Silver Plus',   icon: 'fa-medal',            color: '#94A3B8', min: 500,    term: '2-month term', totalReturn: 34.00 },
+  { name: 'Gold',          icon: 'fa-medal',            color: '#F59E0B', min: 1000,   term: '3-month term', totalReturn: 85.00 },
+  { name: 'Gold Plus',     icon: 'fa-medal',            color: '#F59E0B', min: 2500,   term: '3-month term', totalReturn: 235.00, featured: true },
+  { name: 'Platinum',      icon: 'fa-gem',              color: '#3B82F6', min: 5000,   term: '6-month term', totalReturn: 580.00 },
+  { name: 'Platinum Plus', icon: 'fa-gem',              color: '#3B82F6', min: 10000,  term: '6-month term', totalReturn: 1250.00 },
+  { name: 'Diamond',       icon: 'fa-gem',              color: '#8B5CF6', min: 20000,  term: '9-month term', totalReturn: 2840.00 },
+  { name: 'Diamond Plus',  icon: 'fa-gem',              color: '#8B5CF6', min: 35000,  term: '9-month term', totalReturn: 5390.00 },
+  { name: 'Elite',         icon: 'fa-crown',            color: '#F59E0B', min: 50000,  term: '12-month term', totalReturn: 8900.00 },
+  { name: 'Elite Plus',    icon: 'fa-crown',            color: '#F59E0B', min: 75000,  term: '12-month term', totalReturn: 14325.00 },
+  { name: 'Institutional', icon: 'fa-building-columns', color: '#10B981', min: 100000, term: '12-month term', totalReturn: 21500.00 },
 ];
 
 const PACKAGE_HISTORY = [
@@ -1995,7 +1992,7 @@ const Catalog = (() => {
           <div class="catalog-icon" style="background:${p.color}22;color:${p.color}"><i class="fa-solid ${p.icon}"></i></div>
           <div><div class="catalog-name">${p.name}</div><div class="catalog-term">${p.term}</div></div>
         </div>
-        <div class="catalog-rate">${p.rate}%<span> return</span></div>
+        <div class="catalog-rate">${Currency.format(p.totalReturn)}<span> profit</span></div>
         <div class="catalog-specs">
           <div class="catalog-spec"><span class="catalog-spec-label">Minimum Investment</span><span class="catalog-spec-val">${Currency.format(p.min)}</span></div>
           <div class="catalog-spec"><span class="catalog-spec-label">Term Length</span><span class="catalog-spec-val">${p.term}</span></div>

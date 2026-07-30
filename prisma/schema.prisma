@@ -155,19 +155,21 @@ model LoginActivity {
 // INVESTMENT PACKAGES
 // ──────────────────────────────────────────────────────────────────
 model Package {
-  id           String   @id @default(uuid())
-  name         String   @unique
-  icon         String
-  color        String
-  minAmountUsd Decimal  @db.Decimal(18, 2)
-  termDays     Int
-  ratePercent  Decimal  @db.Decimal(5, 2)
-  featured     Boolean  @default(false)
-  sortOrder    Int      @default(0)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  id             String   @id @default(uuid())
+  name           String   @unique
+  icon           String
+  color          String
+  minAmountUsd   Decimal  @db.Decimal(18, 2)
+  termDays       Int
+  // The actual profit in USD for a user who invests exactly minAmountUsd, fixed at seed/admin-edit
+  // time rather than computed from a percentage. Payout = minAmountUsd + fixedReturnUsd.
+  fixedReturnUsd Decimal  @db.Decimal(18, 2)
+  featured       Boolean  @default(false)
+  sortOrder      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
 
-  userPackages UserPackage[]
+  userPackages   UserPackage[]
 }
 
 model UserPackage {

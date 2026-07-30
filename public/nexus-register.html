@@ -552,11 +552,11 @@ body.page-leaving .page,body.page-leaving .topbar{
 
 <!-- Top Bar -->
 <div class="topbar">
-  <a href="nexus-invest.html" class="topbar-logo">
+  <a href="index.html" class="topbar-logo">
     <div class="topbar-logo-icon">N</div>
     NexusCapital
   </a>
-  <a href="nexus-invest.html" class="topbar-link"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+  <a href="index.html" class="topbar-link"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
 </div>
 
 <!-- Page -->
@@ -908,15 +908,20 @@ body.page-leaving .page,body.page-leaving .topbar{
     requestAnimationFrame(() => veil.classList.add('veil-hidden'));
   });
 
+  function navigateWithVeil(url, delay) {
+    document.body.classList.add('page-leaving');
+    veil.classList.remove('veil-hidden');
+    veil.classList.add('veil-entering');
+    setTimeout(() => { window.location.href = url; }, delay ?? TRANSITION_MS);
+  }
+  window.navigateWithVeil = navigateWithVeil;
+
   document.addEventListener('click', (e) => {
     const link = e.target.closest('a[href$=".html"]');
     if (!link) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey || link.target === '_blank') return;
     e.preventDefault();
-    document.body.classList.add('page-leaving');
-    veil.classList.remove('veil-hidden');
-    veil.classList.add('veil-entering');
-    setTimeout(() => { window.location.href = link.href; }, TRANSITION_MS);
+    navigateWithVeil(link.href, TRANSITION_MS);
   });
 })();
 
@@ -1114,7 +1119,7 @@ form.addEventListener('submit', async (e) => {
     try { localStorage.setItem('nexus_user_name', json.data.user.fullName); } catch (e) { /* storage unavailable */ }
     // No access token stored here — the httpOnly refresh cookie set by this request is what
     // nexus-dashboard-mobile.html uses (via Auth.bootstrap()) to restore the session on load.
-    setTimeout(() => { window.location.href = 'nexus-dashboard-mobile.html'; }, 900);
+    navigateWithVeil('nexus-dashboard-mobile.html', 900);
   } catch (err) {
     btn.style.opacity = '1';
     btn.disabled = false;

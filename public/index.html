@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log In — Euronext</title>
+<title>Log In — NexusCapital</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
@@ -385,25 +385,49 @@ button{cursor:pointer;border:none;background:none;font:inherit}
   .form-col{padding:0}
   .form-wrap{max-width:520px}
 }
-@media(max-width:540px){
+@media(max-width:560px){
   .topbar{padding:20px}
   .page{padding:0 20px 40px}
   .form-card{padding:22px 18px}
   .social-row{grid-template-columns:1fr}
 }
+
+/* ── Page transition veil ─────────────────────────────────────── */
+#pageVeil{
+  position:fixed;inset:0;z-index:9998;background:var(--black);
+  display:flex;align-items:center;justify-content:center;
+  opacity:1;pointer-events:none;
+  transition:opacity .45s cubic-bezier(.2,.8,.2,1);
+}
+#pageVeil.veil-hidden{opacity:0}
+#pageVeil.veil-entering{pointer-events:all;opacity:1}
+.veil-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#8B5CF6);
+  display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;
+  font-size:17px;box-shadow:0 0 24px rgba(59,130,246,0.35);
+  animation:veilPulse 1s cubic-bezier(.2,.8,.2,1) infinite alternate;
+}
+@keyframes veilPulse{ 0%{ transform:scale(1); opacity:.9 } 100%{ transform:scale(1.08); opacity:1 } }
+body.page-leaving .page,body.page-leaving .topbar{
+  transition:opacity .35s cubic-bezier(.2,.8,.2,1),transform .35s cubic-bezier(.2,.8,.2,1),filter .35s cubic-bezier(.2,.8,.2,1);
+  opacity:0;transform:translateY(-8px);filter:blur(4px);
+}
+@media (prefers-reduced-motion: reduce){
+  #pageVeil, body.page-leaving .page, body.page-leaving .topbar{ transition-duration:.001ms !important; filter:none !important; }
+}
 </style>
 </head>
 <body>
 
+<div id="pageVeil"><div class="veil-mark">N</div></div>
 <div class="bg-orb bg-orb-1"></div>
 <div class="bg-orb bg-orb-2"></div>
 <div class="bg-grid"></div>
 
 <!-- Top Bar -->
 <div class="topbar">
-  <a href="nexus-invest.html" class="topbar-logo">
-    <div class="topbar-logo-icon">E</div>
-    Euronext
+  <a href="index.html" class="topbar-logo">
+    <div class="topbar-logo-icon">N</div>
+    NexusCapital
   </a>
   <div class="topbar-right">
     <span>No account?</span>
@@ -481,7 +505,7 @@ button{cursor:pointer;border:none;background:none;font:inherit}
       </div>
 
       <div class="fade-up d1">
-        <h2 class="form-title">Sign in to <span>Euronext</span></h2>
+        <h2 class="form-title">Sign in to <span>NexusCapital</span></h2>
         <p class="form-sub">Enter your registered details to access your dashboard.</p>
       </div>
 
@@ -735,6 +759,33 @@ button{cursor:pointer;border:none;background:none;font:inherit}
 
 </script>
 <script>
+/* ── Page transition veil ─────────────────────────────────────── */
+(function () {
+  'use strict';
+  const veil = document.getElementById('pageVeil');
+  const TRANSITION_MS = 380;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => veil.classList.add('veil-hidden'));
+  });
+
+  function navigateWithVeil(url, delay) {
+    document.body.classList.add('page-leaving');
+    veil.classList.remove('veil-hidden');
+    veil.classList.add('veil-entering');
+    setTimeout(() => { window.location.href = url; }, delay ?? TRANSITION_MS);
+  }
+  window.navigateWithVeil = navigateWithVeil;
+
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href$=".html"]');
+    if (!link) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || link.target === '_blank') return;
+    e.preventDefault();
+    navigateWithVeil(link.href, TRANSITION_MS);
+  });
+})();
+
 const API_BASE = '/api/v1';
 
 // ── Uganda phone helpers ──────────────────────────────────────────────────────
@@ -928,7 +979,7 @@ function onLoginSuccess(fullName) {
   document.getElementById('btnArrow').className = 'fa-solid fa-check';
   showAlert('success', `Welcome back, ${fullName.split(' ')[0]}!`);
   if (window.IconSystem) window.IconSystem.burst(btn, 'success');
-  setTimeout(() => { window.location.href = 'nexus-dashboard-mobile.html'; }, 900);
+  navigateWithVeil('nexus-dashboard-mobile.html', 900);
 }
 
 function setLoading(loading) {
