@@ -31,3 +31,18 @@ export const authLimiter = rateLimit({
   store: redisStore('rl:auth:'),
   message: { success: false, message: 'Too many attempts, please try again shortly.' },
 });
+
+/**
+ * The webhook endpoint previously had no rate limiting at all — unlike every other route in this
+ * app. Generous limit (bursts of legitimate webhook deliveries are normal), but not unlimited:
+ * every request costs a signature check plus a DB write to the audit trail even when rejected,
+ * so an unthrottled endpoint is a real, cheap denial-of-service surface.
+ */
+export const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: redisStore('rl:webhook:'),
+  message: { success: false, message: 'Too many webhook requests.' },
+});

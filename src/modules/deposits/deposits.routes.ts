@@ -9,7 +9,7 @@ import { catchAsync } from '../../utils/catchAsync';
 import { ApiError } from '../../utils/ApiError';
 import { initiatePayment } from '../payments/payments.service';
 import * as currencyService from '../currency/currency.service';
-import { parsePagination, paginatedResponse, PaginationParams } from '../../utils/pagination';
+import { parsePagination, paginatedResponse, resolveSort, PaginationParams } from '../../utils/pagination';
 
 // ── Validation ───────────────────────────────────────────────────
 const createDepositSchema = z.object({
@@ -73,7 +73,7 @@ async function listDeposits(userId: string, pagination: PaginationParams, status
   const [items, total] = await Promise.all([
     prisma.transaction.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: resolveSort(pagination, ['createdAt', 'amountUsd', 'status'], 'createdAt'),
       skip: pagination.skip,
       take: pagination.limit,
     }),

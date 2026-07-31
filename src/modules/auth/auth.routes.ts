@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validate } from '../../middleware/validate.middleware';
 import { requireAuth } from '../../middleware/auth.middleware';
 import { authLimiter } from '../../middleware/rateLimit.middleware';
+import { requireCsrfToken } from '../../middleware/csrf.middleware';
 import {
   forgotPasswordSchema,
   loginSchema,
@@ -28,8 +29,8 @@ const router = Router();
 
 router.post('/register', authLimiter, validate(registerSchema), registerHandler);
 router.post('/login', authLimiter, validate(loginSchema), loginHandler);
-router.post('/refresh', authLimiter, validate(refreshSchema), refreshHandler);
-router.post('/logout', requireAuth, logoutHandler);
+router.post('/refresh', authLimiter, requireCsrfToken, validate(refreshSchema), refreshHandler);
+router.post('/logout', requireAuth, requireCsrfToken, logoutHandler);
 router.post('/forgot-password', authLimiter, validate(forgotPasswordSchema), forgotPasswordHandler);
 router.post('/reset-password', authLimiter, validate(resetPasswordSchema), resetPasswordHandler);
 router.post('/verify-email', authLimiter, validate(verifyEmailSchema), verifyEmailHandler);

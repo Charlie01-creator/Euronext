@@ -10,7 +10,7 @@ import { ApiError } from '../../utils/ApiError';
 import * as flutterwave from '../payments/flutterwave.provider';
 import * as currencyService from '../currency/currency.service';
 import { createNotification } from '../notifications/notifications.service';
-import { parsePagination, paginatedResponse, PaginationParams } from '../../utils/pagination';
+import { parsePagination, paginatedResponse, resolveSort, PaginationParams } from '../../utils/pagination';
 
 // ── Validation ───────────────────────────────────────────────────
 const createWithdrawalSchema = z
@@ -115,7 +115,7 @@ async function listWithdrawals(userId: string, pagination: PaginationParams, sta
   const [items, total] = await Promise.all([
     prisma.transaction.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: resolveSort(pagination, ['createdAt', 'amountUsd', 'status'], 'createdAt'),
       skip: pagination.skip,
       take: pagination.limit,
     }),

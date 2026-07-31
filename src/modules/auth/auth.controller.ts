@@ -3,6 +3,7 @@ import { catchAsync } from '../../utils/catchAsync';
 import { ApiError } from '../../utils/ApiError';
 import * as authService from './auth.service';
 import { isProd } from '../../config/env';
+import { CSRF_COOKIE, setCsrfCookie } from '../../middleware/csrf.middleware';
 
 const REFRESH_COOKIE = 'nexus_refresh_token';
 const DEFAULT_COOKIE_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
@@ -32,6 +33,7 @@ function setRefreshCookie(res: Response, token: string, rememberMe?: boolean) {
 export const registerHandler = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.register(req.body);
   setRefreshCookie(res, result.refreshToken);
+  setCsrfCookie(res);
   res.status(201).json({ success: true, data: { user: result.user, accessToken: result.accessToken } });
 });
 
@@ -49,6 +51,7 @@ export const loginHandler = catchAsync(async (req: Request, res: Response) => {
   const ipAddress = req.ip ?? 'unknown';
   const result = await authService.login(req.body, { device, ipAddress, rememberMe: req.body.rememberMe });
   setRefreshCookie(res, result.refreshToken, req.body.rememberMe);
+  setCsrfCookie(res);
   res.status(200).json({ success: true, data: { user: result.user, accessToken: result.accessToken } });
 });
 
@@ -67,6 +70,7 @@ export const refreshHandler = catchAsync(async (req: Request, res: Response) => 
 
   const tokens = await authService.refresh(token);
   setRefreshCookie(res, tokens.refreshToken);
+  setCsrfCookie(res);
   res.status(200).json({ success: true, data: { accessToken: tokens.accessToken } });
 });
 
@@ -83,6 +87,7 @@ export const logoutHandler = catchAsync(async (req: Request, res: Response) => {
   const token = req.body.refreshToken ?? req.cookies?.[REFRESH_COOKIE];
   await authService.logout(token, req.user!.id);
   res.clearCookie(REFRESH_COOKIE, { path: '/api/v1/auth' });
+  res.clearCookie(CSRF_COOKIE, { path: '/api/v1/auth' });
   res.status(204).send();
 });
 

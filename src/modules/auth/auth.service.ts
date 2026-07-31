@@ -112,7 +112,7 @@ export async function register(input: RegisterInput) {
 }
 
 /** Accepts +256XXXXXXXXX, 256XXXXXXXXX, 0XXXXXXXXX, or bare 9-digit local formats and normalizes to +256XXXXXXXXX. */
-function normalizeUgandaPhone(raw: string): string {
+export function normalizeUgandaPhone(raw: string): string {
   const s = raw.replace(/[\s\-()]/g, '');
   if (s.startsWith('+256')) return s;
   if (s.startsWith('256')) return `+${s}`;

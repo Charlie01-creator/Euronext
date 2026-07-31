@@ -546,6 +546,15 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border2)}
 /* ── Light fade before leaving to an external checkout page ─────── */
 body.external-redirecting{transition:opacity .3s ease;opacity:0}
+
+/* ── Keyboard focus indicator for interactive divs (accessibility) ─── */
+.subnav-tab:focus-visible, .qa-action:focus-visible, .earn-tab:focus-visible,
+.wd-method:focus-visible, .icon-btn:focus-visible, .hamburger-mobile:focus-visible,
+.sb-user:focus-visible, .bn-item:focus-visible, .bn-center:focus-visible,
+.notif-item:focus-visible, .notif-list-item:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
 </style>
 </head>
 <body>
@@ -1251,12 +1260,22 @@ const Api = (() => {
   function getToken() { return accessToken; }
   function clearToken() { accessToken = null; }
 
+  /** Reads the CSRF token from its (non-httpOnly, by design) cookie — see csrf.middleware.ts for the full explanation of this pattern. */
+  function getCsrfToken() {
+    const match = document.cookie.match(/(?:^|;\s*)nexus_csrf_token=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
   async function refreshToken() {
     if (!refreshPromise) {
+      const csrfToken = getCsrfToken();
       refreshPromise = fetch(`${BASE_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include', // sends the httpOnly refresh-token cookie
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+        },
         body: '{}',
       })
         .then(async (res) => {
@@ -1272,12 +1291,14 @@ const Api = (() => {
 
   /** fetch() wrapper: attaches the bearer token, retries once via silent refresh on a 401. */
   async function request(path, options = {}, _isRetry = false) {
+    const csrfToken = getCsrfToken();
     const res = await fetch(`${BASE_URL}${path}`, {
       ...options,
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
         ...(options.headers || {}),
       },
     });
@@ -2118,7 +2139,7 @@ const Notifications = (() => {
   }
   function renderDropdown() {
     document.getElementById('notifDropdownList').innerHTML = NOTIFICATIONS.slice(0, 5).map((n, i) => `
-      <div class="notif-item ${n.unread ? 'unread' : ''}" onclick="Notifications.markOneRead(${i})">
+      <div class="notif-item ${n.unread ? 'unread' : ''}" onclick="Notifications.markOneRead(${i})" role="button" tabindex="0" aria-label="${n.unread ? 'Unread notification: ' : ''}${n.title}">
         <div class="notif-ic" style="background:var(--${n.color}-glow, var(--surface2));color:var(--${n.color})"><i class="fa-solid ${n.icon}"></i></div>
         <div><div class="notif-title">${n.title}</div><div class="notif-desc">${n.desc}</div><div class="notif-time">${n.time}</div></div>
       </div>
@@ -2126,7 +2147,7 @@ const Notifications = (() => {
   }
   function renderList() {
     document.getElementById('notifListCard').innerHTML = NOTIFICATIONS.map((n, i) => `
-      <div class="notif-list-item ${n.unread ? 'unread' : ''}" data-idx="${i}" onclick="Notifications.markOneRead(${i})">
+      <div class="notif-list-item ${n.unread ? 'unread' : ''}" data-idx="${i}" onclick="Notifications.markOneRead(${i})" role="button" tabindex="0" aria-label="${n.unread ? 'Unread notification: ' : ''}${n.title}">
         <div class="nli-ic" style="background:var(--${n.color}-glow, var(--surface2));color:var(--${n.color})"><i class="fa-solid ${n.icon}"></i></div>
         <div><div class="nli-title">${n.title}</div><div class="nli-desc">${n.desc}</div><div class="nli-time">${n.time}</div></div>
       </div>
@@ -2226,6 +2247,56 @@ function animateCounters() {
 /* ══════════════════════════════════════════════════════════════════
    INIT — render all data-driven content once, then start the router
 ══════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════
+   ACCESSIBILITY: interactive <div> elements throughout this app use
+   onclick handlers for tap/click, but a div with onclick alone is
+   invisible to keyboard/screen-reader users — not focusable, not
+   announced as interactive, doesn't respond to Enter/Space. This
+   enhancer fixes that centrally rather than requiring every one of
+   the ~30+ instances (many rendered dynamically via JS templates) to
+   be hand-edited individually and kept in sync forever after.
+══════════════════════════════════════════════════════════════════ */
+const INTERACTIVE_DIV_SELECTOR = [
+  '.subnav-tab', '.qa-action', '.earn-tab', '.wd-method',
+  '.icon-btn', '.hamburger-mobile', '.sb-user', '.bn-item', '.bn-center',
+].join(',');
+
+function enhanceInteractiveDivs(root = document) {
+  root.querySelectorAll(INTERACTIVE_DIV_SELECTOR).forEach((el) => {
+    if (el.tagName !== 'DIV') return; // real <button>s already work correctly, leave them alone
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+    if (!el.hasAttribute('role')) el.setAttribute('role', 'button');
+  });
+}
+
+// Covers every div present at load. A MutationObserver (rather than re-calling this after every
+// individual render function) means any future dynamically-inserted match gets covered too,
+// without needing to remember to call the enhancer from every new render path added later.
+const a11yObserver = new MutationObserver((mutations) => {
+  for (const m of mutations) {
+    m.addedNodes.forEach((node) => {
+      if (node.nodeType !== 1) return; // element nodes only
+      if (node.matches?.(INTERACTIVE_DIV_SELECTOR)) enhanceInteractiveDivs(node.parentElement || document);
+      else if (node.querySelector) enhanceInteractiveDivs(node);
+    });
+  }
+});
+
+// One delegated listener handles Enter/Space activation for every matched element, present now
+// or added later — no per-element listener setup required.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const el = e.target.closest(INTERACTIVE_DIV_SELECTOR);
+  if (!el || el.tagName !== 'DIV') return;
+  e.preventDefault(); // stops Space from scrolling the page
+  el.click();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  enhanceInteractiveDivs();
+  a11yObserver.observe(document.body, { childList: true, subtree: true });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   Identity.initDate();
   renderHeatmap();

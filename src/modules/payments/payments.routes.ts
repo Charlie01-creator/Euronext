@@ -3,6 +3,7 @@ import { catchAsync } from '../../utils/catchAsync';
 import { ApiError } from '../../utils/ApiError';
 import { prisma } from '../../lib/prisma';
 import { logger } from '../../config/logger';
+import { webhookLimiter } from '../../middleware/rateLimit.middleware';
 import * as flutterwave from './flutterwave.provider';
 import * as paymentsService from './payments.service';
 
@@ -49,6 +50,6 @@ const webhookHandler = catchAsync(async (req: Request, res: Response) => {
 });
 
 const router = Router();
-router.post('/webhooks/flutterwave', webhookHandler);
+router.post('/webhooks/flutterwave', webhookLimiter, webhookHandler);
 
 export default router;

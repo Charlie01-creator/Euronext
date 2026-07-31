@@ -478,18 +478,18 @@ body.page-leaving .page,body.page-leaving .topbar{
 
     <!-- Reusable dashboard icon dock — same components used across the platform -->
     <div class="icon-dock fade-up d3" aria-label="Platform sections">
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Home"><i class="fa-solid fa-house"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Analytics"><i class="fa-solid fa-chart-line"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Investments"><i class="fa-solid fa-sack-dollar"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Wallet"><i class="fa-solid fa-wallet"></i></button>
-      <button class="icon-orb icon-orb--md icon-orb--active" data-magnetic data-tip="Security"><i class="fa-solid fa-shield-halved"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-badge="3" data-tip="Notifications"><i class="fa-solid fa-bell" data-pulse></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Settings"><i class="fa-solid fa-gear"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Profile"><i class="fa-solid fa-user"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Referrals"><i class="fa-solid fa-users"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Transactions"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Rewards" data-burst="gold"><i class="fa-solid fa-trophy"></i></button>
-      <button class="icon-orb icon-orb--md" data-magnetic data-tip="Support"><i class="fa-solid fa-headset"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Home"><i class="fa-solid fa-house"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Analytics"><i class="fa-solid fa-chart-line"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Investments"><i class="fa-solid fa-sack-dollar"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Wallet"><i class="fa-solid fa-wallet"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md icon-orb--active" data-magnetic data-tip="Security"><i class="fa-solid fa-shield-halved"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-badge="3" data-tip="Notifications"><i class="fa-solid fa-bell" data-pulse></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Settings"><i class="fa-solid fa-gear"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Profile"><i class="fa-solid fa-user"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Referrals"><i class="fa-solid fa-users"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Transactions"><i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Rewards" data-burst="gold"><i class="fa-solid fa-trophy"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--md" data-magnetic data-tip="Support"><i class="fa-solid fa-headset"></i></button>
     </div>
   </div>
 
@@ -574,7 +574,7 @@ body.page-leaving .page,body.page-leaving .topbar{
               placeholder="Enter your password"
               autocomplete="current-password"
             >
-            <button type="button" class="toggle-pw" id="togglePw"><i class="fa-solid fa-eye"></i></button>
+            <button type="button" class="toggle-pw" id="togglePw" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
           </div>
           <span class="error-msg" id="passwordError">Please enter your password</span>
         </div>
@@ -617,7 +617,7 @@ body.page-leaving .page,body.page-leaving .topbar{
         <div style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--white);margin-bottom:5px">Reset your password</div>
         <div style="font-size:13px;color:var(--white-60);line-height:1.6">Enter your registered phone number. A reset link will be sent to the email on your account.</div>
       </div>
-      <button class="icon-orb icon-orb--xs" onclick="closeForgot()"><i class="fa-solid fa-xmark"></i></button>
+      <button aria-hidden="true" tabindex="-1" class="icon-orb icon-orb--xs" onclick="closeForgot()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div id="forgotForm">
       <div style="font-family:var(--font-mono);font-size:11px;color:var(--white-60);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Your registered phone number</div>
@@ -845,6 +845,7 @@ document.getElementById('togglePw').addEventListener('click', function() {
   const showing = input.type === 'password';
   input.type = showing ? 'text' : 'password';
   icon.className = showing ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+  this.setAttribute('aria-label', showing ? 'Hide password' : 'Show password');
 });
 
 // ── Alert helpers ─────────────────────────────────────────────────────────────
