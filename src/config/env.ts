@@ -25,10 +25,11 @@ const envSchema = z.object({
 
   BCRYPT_SALT_ROUNDS: z.coerce.number().default(12),
 
-  FLUTTERWAVE_PUBLIC_KEY: z.string().default(''),
-  FLUTTERWAVE_SECRET_KEY: z.string().default(''),
-  FLUTTERWAVE_WEBHOOK_SECRET_HASH: z.string().default(''),
-  FLUTTERWAVE_BASE_URL: z.string().default('https://api.flutterwave.com/v3'),
+  PESAPAL_CONSUMER_KEY: z.string().default(''),
+  PESAPAL_CONSUMER_SECRET: z.string().default(''),
+  // Sandbox by default — deliberately not live, so a missing/forgotten env var can't silently
+  // start processing real payments. Live: https://pay.pesapal.com/v3
+  PESAPAL_BASE_URL: z.string().default('https://cybqa.pesapal.com/pesapalv3'),
 
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
   RATE_LIMIT_MAX: z.coerce.number().default(100),

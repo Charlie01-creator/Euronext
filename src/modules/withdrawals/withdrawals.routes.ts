@@ -7,7 +7,6 @@ import { validate } from '../../middleware/validate.middleware';
 import { requireIdempotencyKey } from '../../middleware/idempotency.middleware';
 import { catchAsync } from '../../utils/catchAsync';
 import { ApiError } from '../../utils/ApiError';
-import * as flutterwave from '../payments/flutterwave.provider';
 import * as currencyService from '../currency/currency.service';
 import { createNotification } from '../notifications/notifications.service';
 import { parsePagination, paginatedResponse, resolveSort, PaginationParams } from '../../utils/pagination';
@@ -18,7 +17,7 @@ const createWithdrawalSchema = z
     body: z.object({
       amount: z.number().positive('Amount must be greater than zero'),
       currency: z.string().length(3).default('USD'),
-      method: z.enum(['MTN_MOBILE_MONEY', 'AIRTEL_MONEY', 'BANK_TRANSFER']), // no CARD — card payouts aren't a real thing
+      method: z.enum(['MTN_MOBILE_MONEY', 'AIRTEL_MONEY', 'BANK_TRANSFER']),
       phone: z.string().min(7).max(20).optional(),
       bankCode: z.string().optional(),
       accountNumber: z.string().optional(),
@@ -41,6 +40,13 @@ const createWithdrawalSchema = z
 const MINIMUM_WITHDRAWAL_USD = 10;
 
 // ── Service ──────────────────────────────────────────────────────
+/**
+ * Withdrawals are no longer paid out automatically — Pesapal (which replaced Flutterwave for
+ * every other payment flow) has no public disbursement API, and the product owner has chosen to
+ * personally review and approve every payout regardless. This function only reserves the funds
+ * and records the destination details; an admin (see src/modules/admin) approves or rejects it
+ * from there, sending the money through their own channel outside this app.
+ */
 async function createWithdrawal(userId: string, input: z.infer<typeof createWithdrawalSchema>['body']) {
   const amountUsd = await currencyService.toUsd(input.amount, input.currency);
   if (amountUsd < MINIMUM_WITHDRAWAL_USD) {
@@ -58,8 +64,8 @@ async function createWithdrawal(userId: string, input: z.infer<typeof createWith
       ? { bankCode: input.bankCode, accountNumber: input.accountNumber, accountHolderName: input.accountHolderName }
       : { phone: input.phone };
 
-  // Deduct up-front so the same funds can't be withdrawn twice while the payout is in flight.
-  // The webhook refunds this automatically if Flutterwave reports the payout failed.
+  // Deduct up-front so the same funds can't be requested twice while awaiting admin review.
+  // If an admin rejects it, this is refunded — see admin.service.ts.
   const transaction = await prisma.$transaction(async (tx) => {
     await tx.user.update({ where: { id: userId }, data: { balanceUsd: { decrement: amountUsd } } });
     return tx.transaction.create({
@@ -76,33 +82,13 @@ async function createWithdrawal(userId: string, input: z.infer<typeof createWith
     });
   });
 
-  try {
-    await flutterwave.initiatePayout({
-      amountUsd,
-      currency: input.currency,
-      narration: 'NexusCapital withdrawal',
-      reference,
-      phone: input.method === 'BANK_TRANSFER' ? undefined : input.phone,
-      network: input.method === 'MTN_MOBILE_MONEY' ? 'MTN' : input.method === 'AIRTEL_MONEY' ? 'AIRTEL' : undefined,
-      accountNumber: input.accountNumber,
-      bankCode: input.bankCode,
-    });
-  } catch (err) {
-    // Provider rejected the payout outright (bad account details etc) — refund immediately rather than waiting on a webhook that will never arrive.
-    await prisma.$transaction(async (tx) => {
-      await tx.user.update({ where: { id: userId }, data: { balanceUsd: { increment: amountUsd } } });
-      await tx.transaction.update({ where: { id: transaction.id }, data: { status: 'FAILED', failureReason: (err as Error).message } });
-    });
-    throw err;
-  }
-
   await createNotification({
     userId,
     type: 'WITHDRAWAL',
     icon: 'fa-money-bill-transfer',
     color: 'gold',
     title: 'Withdrawal requested',
-    description: `Your withdrawal of $${amountUsd.toLocaleString()} is being processed and typically arrives within 2 hours.`,
+    description: `Your withdrawal of $${amountUsd.toLocaleString()} has been submitted and is awaiting review.`,
   });
 
   return transaction;
@@ -130,12 +116,12 @@ async function listWithdrawals(userId: string, pagination: PaginationParams, sta
  * /withdrawals:
  *   post:
  *     tags: [Withdrawals]
- *     summary: Request a withdrawal to MTN, Airtel, or a bank account
+ *     summary: Request a withdrawal to MTN, Airtel, or a bank account — submitted for admin review, not paid out automatically
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - { in: header, name: Idempotency-Key, required: true, schema: { type: string } }
  *     responses:
- *       201: { description: Withdrawal requested }
+ *       201: { description: Withdrawal requested, awaiting admin approval }
  *   get:
  *     tags: [Withdrawals]
  *     summary: List the current user's withdrawal history

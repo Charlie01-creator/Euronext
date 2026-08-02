@@ -237,7 +237,7 @@ export async function forgotPassword(phoneNumber: string) {
   // This project doesn't yet integrate an SMS/email provider (e.g. Africa's Talking, since
   // this is a Uganda-focused product) to actually deliver the token to the user — that's a
   // real external account/integration dependency, documented in the README alongside the
-  // other out-of-scope integrations (Flutterwave KYB, admin API). Logging it here in the
+  // other out-of-scope integrations (Pesapal merchant verification, admin API). Logging it here in the
   // meantime so the flow is fully testable end-to-end in development.
   logger.info({ userId: user.id, token }, 'Password reset token issued — wire up SMS/email delivery before production use');
 }

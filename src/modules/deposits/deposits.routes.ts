@@ -16,8 +16,6 @@ const createDepositSchema = z.object({
   body: z.object({
     amount: z.number().positive('Amount must be greater than zero'),
     currency: z.string().length(3).default('USD'),
-    method: z.enum(['MTN_MOBILE_MONEY', 'AIRTEL_MONEY', 'CARD', 'BANK_TRANSFER']),
-    phone: z.string().min(7).max(20).optional(),
   }),
   query: z.object({}).optional(),
   params: z.object({}).optional(),
@@ -29,11 +27,6 @@ const MINIMUM_DEPOSIT_USD = 10;
 
 // ── Service ──────────────────────────────────────────────────────
 async function createDeposit(userId: string, input: z.infer<typeof createDepositSchema>['body']) {
-  const isMobileMoney = input.method === 'MTN_MOBILE_MONEY' || input.method === 'AIRTEL_MONEY';
-  if (isMobileMoney && !input.phone) {
-    throw ApiError.badRequest('Phone number is required for mobile money deposits');
-  }
-
   const amountUsd = await currencyService.toUsd(input.amount, input.currency);
   if (amountUsd < MINIMUM_DEPOSIT_USD) {
     throw ApiError.badRequest(`Minimum deposit is ${MINIMUM_DEPOSIT_USD} USD equivalent`);
@@ -47,25 +40,23 @@ async function createDeposit(userId: string, input: z.infer<typeof createDeposit
       userId,
       type: 'DEPOSIT',
       status: 'PENDING',
-      method: input.method,
       amountUsd,
       currency: input.currency,
       providerRef: txRef,
-      destination: input.phone ? { phone: input.phone } : undefined,
     },
   });
 
-  const { redirectUrl, providerStatus } = await initiatePayment({
+  const { redirectUrl } = await initiatePayment({
     amountUsd,
     currency: input.currency,
-    method: input.method,
-    phone: input.phone,
     email: user.email,
     fullName: user.fullName,
+    phone: user.phone ?? undefined,
     txRef,
+    description: 'NexusCapital deposit',
   });
 
-  return { transaction, redirectUrl, providerStatus };
+  return { transaction, redirectUrl };
 }
 
 async function listDeposits(userId: string, pagination: PaginationParams, status?: (typeof TRANSACTION_STATUSES)[number]) {
@@ -88,12 +79,12 @@ async function listDeposits(userId: string, pagination: PaginationParams, status
  * /deposits:
  *   post:
  *     tags: [Deposits]
- *     summary: Initiate a deposit via MTN, Airtel, Card, or Bank Transfer
+ *     summary: Initiate a deposit — redirects to Pesapal's hosted checkout, where the user picks their own payment method (mobile money, card, or bank)
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - { in: header, name: Idempotency-Key, required: true, schema: { type: string } }
  *     responses:
- *       201: { description: Deposit initiated }
+ *       201: { description: Deposit initiated, redirectUrl points to the Pesapal checkout page }
  *   get:
  *     tags: [Deposits]
  *     summary: List the current user's deposit history, paginated and optionally filtered by status

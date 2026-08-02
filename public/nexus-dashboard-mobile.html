@@ -262,7 +262,7 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .qa-title{font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--white);margin-bottom:2px}
 .qa-back{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--white-40);cursor:pointer;margin-bottom:10px;transition:color var(--dur-fast) ease}
 .qa-back:hover{color:var(--white)}
-#paymentMethodStep,#paymentPhoneStep{animation:fadeIn var(--dur-base) ease}
+#paymentConfirmStep{animation:fadeIn var(--dur-base) ease}
 .qa-sub{font-size:12px;color:var(--white-40);margin-bottom:20px}
 .qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .qa-grid-2{grid-template-columns:repeat(2,1fr)}
@@ -356,6 +356,8 @@ button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 .eyebrow-label{display:block;margin-bottom:8px}
 .field input,.field select{padding:12px 14px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--white);font-size:var(--fs-base);font-family:var(--font-body);transition:border-color var(--dur-fast) ease}
 .field input:focus,.field select:focus{outline:none;border-color:var(--blue)}
+.deposit-method-note{padding:12px 14px;border-radius:9px;background:var(--surface2);border:1px solid var(--border2);color:var(--white-60);font-size:var(--fs-sm);display:flex;align-items:center;gap:8px}
+.deposit-method-note i{color:var(--blue)}
 .deposit-quick-row{display:flex;gap:8px;flex-wrap:wrap}
 .chip-btn{padding:8px 16px;border-radius:100px;background:var(--surface2);border:1px solid var(--border2);color:var(--white-70,var(--white-60));font-family:var(--font-mono);font-size:12px;font-weight:500;transition:all var(--dur-fast) ease}
 .chip-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
@@ -864,7 +866,7 @@ body.external-redirecting{transition:opacity .3s ease;opacity:0}
         <div class="subview" data-tab="deposit" id="dep-deposit">
           <div class="section-head">
             <div><span class="section-label">Add Funds</span><h2 class="section-title">Make a Deposit</h2></div>
-            <span class="badge badge--blue">Stripe & Flutterwave Supported</span>
+            <span class="badge badge--blue">Secured by Pesapal</span>
           </div>
           <div class="grid-2 deposit-grid" style="align-items:start">
             <div class="glass" style="padding:24px;display:flex;flex-direction:column;gap:16px">
@@ -875,12 +877,7 @@ body.external-redirecting{transition:opacity .3s ease;opacity:0}
                 </div>
                 <div class="field">
                   <label>Payment Method</label>
-                  <select id="depositMethod">
-                    <option value="MTN Mobile Money">MTN Mobile Money</option>
-                    <option value="Airtel Money">Airtel Money</option>
-                    <option value="Visa •••• 4471">Credit / Debit Card</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                  </select>
+                  <div class="deposit-method-note"><i class="fa-solid fa-circle-info"></i> Choose mobile money, card, or bank on the next screen</div>
                 </div>
               </div>
               <div class="deposit-quick-row">
@@ -890,7 +887,7 @@ body.external-redirecting{transition:opacity .3s ease;opacity:0}
                 <button class="chip-btn" data-usd="2500" onclick="Deposit.setAmount(2500)">$2,500</button>
               </div>
               <button class="btn btn--primary btn--full" onclick="Deposit.submit()"><i class="fa-solid fa-lock"></i> Continue to Secure Checkout</button>
-              <p style="font-size:11px;color:var(--white-40);line-height:1.6"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>Deposits are processed securely via Stripe or Flutterwave. Funds are typically available within 2 hours.</p>
+              <p style="font-size:11px;color:var(--white-40);line-height:1.6"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>Deposits are processed securely via Pesapal. Funds are typically available shortly after payment confirmation.</p>
             </div>
             <div class="glass" style="padding:22px;display:flex;flex-direction:column;gap:14px">
               <div class="panel-title" style="margin-bottom:0">Why deposit today?</div>
@@ -963,7 +960,7 @@ body.external-redirecting{transition:opacity .3s ease;opacity:0}
               </div>
 
               <button class="btn btn--primary btn--full" onclick="Withdraw.submit()"><i class="fa-solid fa-money-bill-transfer"></i> Request Withdrawal</button>
-              <p style="font-size:11px;color:var(--white-40);line-height:1.6"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>Withdrawals are reviewed for security before release and typically arrive within 2 hours. Card withdrawals aren't supported — choose mobile money or bank transfer.</p>
+              <p style="font-size:11px;color:var(--white-40);line-height:1.6"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>Every withdrawal is personally reviewed before funds are released. Card withdrawals aren't supported — choose mobile money or bank transfer.</p>
             </div>
             <div class="glass" style="padding:22px;display:flex;flex-direction:column;gap:14px">
               <div class="panel-title" style="margin-bottom:0">Good to know</div>
@@ -1218,29 +1215,11 @@ body.external-redirecting{transition:opacity .3s ease;opacity:0}
 <div class="qa-sheet" id="paymentSheet">
   <div class="qa-handle"></div>
 
-  <!-- Step 1: choose payment method -->
-  <div id="paymentMethodStep">
-    <div class="qa-title" id="paymentTitle">Choose Payment Method</div>
+  <div id="paymentConfirmStep">
+    <div class="qa-title" id="paymentTitle">Confirm Purchase</div>
     <div class="qa-sub" id="paymentSub">Complete your purchase</div>
-    <div class="qa-grid qa-grid-2 stagger">
-      <div class="qa-action" onclick="Catalog.chooseMethod('MTN Mobile Money')"><i class="fa-solid fa-mobile-screen-button" style="color:#FFCC00"></i><span>MTN Mobile Money</span></div>
-      <div class="qa-action" onclick="Catalog.chooseMethod('Airtel Money')"><i class="fa-solid fa-mobile-screen" style="color:#ED1C24"></i><span>Airtel Money</span></div>
-      <div class="qa-action" onclick="Catalog.chooseMethod('Credit / Debit Card')"><i class="fa-solid fa-credit-card"></i><span>Credit / Debit Card</span></div>
-      <div class="qa-action" onclick="Catalog.chooseMethod('Bank Transfer')"><i class="fa-solid fa-building-columns"></i><span>Bank Transfer</span></div>
-    </div>
-  </div>
-
-  <!-- Step 2: phone number (mobile money methods only) -->
-  <div id="paymentPhoneStep" style="display:none">
-    <div class="qa-back" onclick="Catalog.backToMethods()"><i class="fa-solid fa-arrow-left"></i> Back</div>
-    <div class="qa-title" id="paymentPhoneTitle">MTN Mobile Money</div>
-    <div class="qa-sub" id="paymentPhoneSub">Enter the number to pay from</div>
-    <div class="field" style="margin-bottom:var(--sp-5)">
-      <label>Mobile Money Phone Number</label>
-      <input type="tel" id="paymentPhone" placeholder="e.g. 077 123 4567">
-    </div>
-    <button class="btn btn--primary btn--full" onclick="Catalog.payWithMobileMoney()"><i class="fa-solid fa-lock"></i> Pay with Flutterwave</button>
-    <p style="font-size:11px;color:var(--white-40);line-height:1.6;margin-top:12px"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>You'll be redirected to Flutterwave to confirm this payment. We never see or store your mobile money PIN.</p>
+    <button class="btn btn--primary btn--full" onclick="Catalog.confirmPayment()"><i class="fa-solid fa-lock"></i> Continue to Secure Checkout</button>
+    <p style="font-size:11px;color:var(--white-40);line-height:1.6;margin-top:12px"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>You'll be redirected to choose mobile money, card, or bank transfer. We never see or store your payment details.</p>
   </div>
 </div>
 
@@ -1878,20 +1857,12 @@ const Earnings = (() => {
    MODULE: Deposit — deposit form (quick-amount chips + submit)
 ══════════════════════════════════════════════════════════════════ */
 const Deposit = (() => {
-  const METHOD_MAP = {
-    'MTN Mobile Money': 'MTN_MOBILE_MONEY',
-    'Airtel Money': 'AIRTEL_MONEY',
-    'Visa •••• 4471': 'CARD',
-    'Bank Transfer': 'BANK_TRANSFER',
-  };
-
   function setAmount(usdValue) {
     document.getElementById('depositAmount').value = Math.round(Currency.convert(usdValue));
   }
 
   async function submit() {
     const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
-    const methodLabel = document.getElementById('depositMethod').value;
     const currency = Currency.get();
 
     if (amount < Currency.convert(10)) {
@@ -1901,26 +1872,14 @@ const Deposit = (() => {
 
     // Demo mode (no backend session) — keep the original simulated confirmation.
     if (!Api.getToken()) {
-      Toast.show(`Redirecting to secure checkout for a ${Currency.symbol()}${amount.toLocaleString()} deposit via ${methodLabel}…`, 'fa-lock');
+      Toast.show(`Redirecting to secure checkout for a ${Currency.symbol()}${amount.toLocaleString()} deposit…`, 'fa-lock');
       return;
     }
 
-    const method = METHOD_MAP[methodLabel];
-    const isMobileMoney = method === 'MTN_MOBILE_MONEY' || method === 'AIRTEL_MONEY';
-    let phone;
-    if (isMobileMoney) {
-      phone = prompt('Enter the phone number to pay from:');
-      if (!phone) return;
-    }
-
     try {
-      const json = await Api.post('/deposits', { amount, currency, method, phone }, { 'Idempotency-Key': crypto.randomUUID() });
-      if (json.data.redirectUrl) {
-        document.body.classList.add('external-redirecting');
-        setTimeout(() => { window.location.href = json.data.redirectUrl; }, 260);
-      } else {
-        Toast.show(`Check your phone for a payment prompt from ${methodLabel}.`, 'fa-mobile-screen-button');
-      }
+      const json = await Api.post('/deposits', { amount, currency }, { 'Idempotency-Key': crypto.randomUUID() });
+      document.body.classList.add('external-redirecting');
+      setTimeout(() => { window.location.href = json.data.redirectUrl; }, 260);
     } catch (err) {
       Toast.show(err.data?.message || 'Deposit failed. Please try again.', 'fa-triangle-exclamation');
     }
@@ -1933,6 +1892,12 @@ const Deposit = (() => {
    MODULE: Withdraw — withdrawal form (MTN / Airtel / Bank method selection)
 ══════════════════════════════════════════════════════════════════ */
 const Withdraw = (() => {
+  const METHOD_MAP = {
+    'MTN Mobile Money': 'MTN_MOBILE_MONEY',
+    'Airtel Money': 'AIRTEL_MONEY',
+    'Bank Transfer': 'BANK_TRANSFER',
+  };
+
   function selectMethod(el) {
     document.querySelectorAll('.wd-method').forEach(m => m.classList.remove('active'));
     el.classList.add('active');
@@ -1940,16 +1905,21 @@ const Withdraw = (() => {
     document.getElementById('wdPhoneGroup').style.display = isBank ? 'none' : '';
     document.getElementById('wdBankGroup').style.display = isBank ? 'flex' : 'none';
   }
-  function submit() {
+
+  async function submit() {
     const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
-    const method = document.querySelector('.wd-method.active')?.dataset.method || 'MTN Mobile Money';
+    const currency = Currency.get();
+    const methodLabel = document.querySelector('.wd-method.active')?.dataset.method || 'MTN Mobile Money';
+    const method = METHOD_MAP[methodLabel];
+
     if (amount < Currency.convert(10)) {
       Toast.show(`Minimum withdrawal amount is ${Currency.format(10)}.`, 'fa-triangle-exclamation');
       return;
     }
 
-    let destination = '';
-    if (method === 'Bank Transfer') {
+    const payload = { amount, currency, method };
+
+    if (method === 'BANK_TRANSFER') {
       const bank = document.getElementById('wdBankName').value;
       const account = document.getElementById('wdBankAccount').value.trim();
       const holder = document.getElementById('wdBankHolder').value.trim();
@@ -1957,17 +1927,30 @@ const Withdraw = (() => {
         Toast.show('Enter your account number and account holder name.', 'fa-triangle-exclamation');
         return;
       }
-      destination = `${bank} •••${account.slice(-4)}`;
+      payload.bankCode = bank;
+      payload.accountNumber = account;
+      payload.accountHolderName = holder;
     } else {
       const phone = document.getElementById('wdPhone').value.trim();
       if (!phone) {
         Toast.show('Enter the phone number to receive this withdrawal.', 'fa-triangle-exclamation');
         return;
       }
-      destination = phone;
+      payload.phone = phone;
     }
 
-    Toast.show(`Withdrawal request of ${Currency.symbol()}${amount.toLocaleString()} via ${method} to ${destination} submitted — funds arrive within 2 hours.`, 'fa-money-bill-transfer');
+    // Demo mode (no backend session) — keep the original simulated confirmation.
+    if (!Api.getToken()) {
+      Toast.show(`Withdrawal request of ${Currency.symbol()}${amount.toLocaleString()} via ${methodLabel} submitted for review.`, 'fa-money-bill-transfer');
+      return;
+    }
+
+    try {
+      await Api.post('/withdrawals', payload, { 'Idempotency-Key': crypto.randomUUID() });
+      Toast.show(`Withdrawal request of ${Currency.symbol()}${amount.toLocaleString()} submitted — you'll be notified once it's reviewed.`, 'fa-money-bill-transfer');
+    } catch (err) {
+      Toast.show(err.data?.message || 'Withdrawal request failed. Please try again.', 'fa-triangle-exclamation');
+    }
   }
   return { selectMethod, submit };
 })();
@@ -2005,8 +1988,32 @@ const PACKAGE_HISTORY = [
 const Catalog = (() => {
   let current = { name: '', amount: 0 };
 
-  function renderCatalog() {
-    document.getElementById('catalogGrid').innerHTML = PACKAGE_CATALOG.map(p => `
+  function formatTerm(termDays) {
+    return termDays < 30 ? `${termDays}-day term` : `${Math.round(termDays / 30)}-month term`;
+  }
+
+  async function renderCatalog() {
+    let packages = PACKAGE_CATALOG;
+
+    if (Api.getToken()) {
+      try {
+        const json = await Api.get('/packages');
+        packages = json.data.map(p => ({
+          id: p.id,
+          name: p.name,
+          icon: p.icon,
+          color: p.color,
+          min: Number(p.minAmountUsd),
+          term: formatTerm(p.termDays),
+          totalReturn: Number(p.fixedReturnUsd),
+          featured: p.featured,
+        }));
+      } catch (err) {
+        // fall back to the demo catalog rather than leaving the page blank
+      }
+    }
+
+    document.getElementById('catalogGrid').innerHTML = packages.map(p => `
       <div class="catalog-card glass ${p.featured ? 'featured' : ''}">
         ${p.featured ? '<span class="catalog-ribbon badge badge--gold">Most Popular</span>' : ''}
         <div class="catalog-head">
@@ -2018,7 +2025,7 @@ const Catalog = (() => {
           <div class="catalog-spec"><span class="catalog-spec-label">Minimum Investment</span><span class="catalog-spec-val">${Currency.format(p.min)}</span></div>
           <div class="catalog-spec"><span class="catalog-spec-label">Term Length</span><span class="catalog-spec-val">${p.term}</span></div>
         </div>
-        <button class="btn ${p.featured ? 'btn--primary' : 'btn--ghost'} btn--full btn--sm" onclick="Catalog.openPayment('${p.name}', ${p.min})">Purchase</button>
+        <button class="btn ${p.featured ? 'btn--primary' : 'btn--ghost'} btn--full btn--sm" onclick="Catalog.openPayment('${p.id ?? ''}', '${p.name}', ${p.min})">Purchase</button>
       </div>
     `).join('');
   }
@@ -2036,52 +2043,36 @@ const Catalog = (() => {
     `).join('');
   }
 
-  function openPayment(name, amount) {
-    current = { name, amount };
+  function openPayment(id, name, amount) {
+    current = { id, name, amount };
     document.getElementById('paymentTitle').textContent = `Purchase ${name}`;
-    document.getElementById('paymentSub').textContent = `Choose how you'd like to fund your ${Currency.format(amount)} investment`;
-    document.getElementById('paymentMethodStep').style.display = '';
-    document.getElementById('paymentPhoneStep').style.display = 'none';
-    document.getElementById('paymentPhone').value = '';
+    document.getElementById('paymentSub').textContent = `Confirm your ${Currency.format(amount)} investment`;
     document.getElementById('paymentOverlay').classList.add('open');
     document.getElementById('paymentSheet').classList.add('open');
-    replayStagger(document.querySelector('#paymentMethodStep .qa-grid'));
   }
   function closePayment() {
     document.getElementById('paymentOverlay').classList.remove('open');
     document.getElementById('paymentSheet').classList.remove('open');
   }
-  function chooseMethod(method) {
-    if (method === 'MTN Mobile Money' || method === 'Airtel Money') {
-      current.method = method;
-      document.getElementById('paymentPhoneTitle').textContent = method;
-      document.getElementById('paymentMethodStep').style.display = 'none';
-      document.getElementById('paymentPhoneStep').style.display = '';
-      document.getElementById('paymentPhone').focus();
-    } else {
-      confirmPayment(method);
-    }
-  }
-  function backToMethods() {
-    document.getElementById('paymentPhoneStep').style.display = 'none';
-    document.getElementById('paymentMethodStep').style.display = '';
-    replayStagger(document.querySelector('#paymentMethodStep .qa-grid'));
-  }
-  function payWithMobileMoney() {
-    const phone = document.getElementById('paymentPhone').value.trim();
-    if (!phone) {
-      Toast.show('Enter the phone number to pay from.', 'fa-triangle-exclamation');
+  async function confirmPayment() {
+    // Demo mode (no backend session) — keep the original simulated confirmation.
+    if (!Api.getToken() || !current.id) {
+      Toast.show(`Redirecting to secure checkout for your ${Currency.format(current.amount)} purchase of the ${current.name} package…`, 'fa-lock');
+      closePayment();
       return;
     }
-    Toast.show(`Redirecting to Flutterwave to confirm ${Currency.format(current.amount)} via ${current.method} from ${phone}…`, 'fa-lock');
-    closePayment();
-  }
-  function confirmPayment(method) {
-    Toast.show(`Redirecting to Flutterwave to complete your ${Currency.format(current.amount)} payment for the ${current.name} package via ${method}…`, 'fa-lock');
-    closePayment();
+
+    try {
+      const json = await Api.post(`/packages/${current.id}/purchase`, { currency: Currency.get() }, { 'Idempotency-Key': crypto.randomUUID() });
+      document.body.classList.add('external-redirecting');
+      setTimeout(() => { window.location.href = json.data.redirectUrl; }, 260);
+    } catch (err) {
+      Toast.show(err.data?.message || 'Purchase failed. Please try again.', 'fa-triangle-exclamation');
+      closePayment();
+    }
   }
 
-  return { renderCatalog, renderHistory, openPayment, closePayment, chooseMethod, backToMethods, payWithMobileMoney, confirmPayment };
+  return { renderCatalog, renderHistory, openPayment, closePayment, confirmPayment };
 })();
 
 /* ══════════════════════════════════════════════════════════════════

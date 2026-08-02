@@ -1,55 +1,57 @@
 import { Request, Response, Router } from 'express';
 import { catchAsync } from '../../utils/catchAsync';
-import { ApiError } from '../../utils/ApiError';
-import { prisma } from '../../lib/prisma';
 import { logger } from '../../config/logger';
 import { webhookLimiter } from '../../middleware/rateLimit.middleware';
-import * as flutterwave from './flutterwave.provider';
 import * as paymentsService from './payments.service';
 
 /**
  * @openapi
- * /payments/webhooks/flutterwave:
+ * /payments/ipn/pesapal:
  *   post:
  *     tags: [Payments]
- *     summary: Flutterwave webhook receiver (deposits, package purchases, withdrawal payouts)
- *     description: Called by Flutterwave's servers, not by the frontend. Verified via the verif-hash header rather than a user session.
+ *     summary: Pesapal IPN (Instant Payment Notification) receiver
+ *     description: >
+ *       Called by Pesapal's servers, not the frontend. Registered once via RegisterIPN at
+ *       submit-order time (see pesapal.provider.ts). Pesapal's contract is different from a
+ *       typical webhook: it expects a structured JSON body confirming receipt — status 200 means
+ *       "received and processed", 500 means "received but something went wrong on our end" — sent
+ *       with an HTTP 200 either way. Sending the wrong shape, or a non-200 HTTP status, causes
+ *       Pesapal to keep retrying indefinitely rather than treating it as a normal failure.
  *     responses:
- *       200: { description: Processed successfully }
- *       401: { description: Invalid or missing webhook signature }
- *       500: { description: Processing failed — Flutterwave will retry on a non-2xx response }
+ *       200: { description: Acknowledgment in Pesapal's expected JSON shape }
  */
-const webhookHandler = catchAsync(async (req: Request, res: Response) => {
-  const signature = req.headers['verif-hash'] as string | undefined;
+const ipnHandler = catchAsync(async (req: Request, res: Response) => {
+  // Pesapal's own examples show these arriving as query params even on a POST-registered IPN,
+  // so both are checked defensively rather than assuming one or the other.
+  const orderTrackingId = (req.query.OrderTrackingId ?? req.body?.OrderTrackingId) as string | undefined;
+  const orderMerchantReference = (req.query.OrderMerchantReference ?? req.body?.OrderMerchantReference) as
+    | string
+    | undefined;
+  const orderNotificationType = (req.query.OrderNotificationType ?? req.body?.OrderNotificationType ?? 'IPNCHANGE') as string;
 
-  if (!flutterwave.verifyWebhookSignature(signature)) {
-    // Recorded even though rejected — a real audit trail needs to show attempted forgeries too,
-    // not just successfully-verified events.
-    await prisma.webhookEvent.create({
-      data: {
-        eventType: req.body?.event ?? 'unknown',
-        providerRef: req.body?.data?.tx_ref ?? req.body?.data?.reference ?? null,
-        signatureValid: false,
-        status: 'FAILED',
-        payload: req.body ?? {},
-        errorMessage: 'Webhook signature verification failed',
-      },
+  if (!orderTrackingId || !orderMerchantReference) {
+    logger.warn({ query: req.query, body: req.body }, 'Pesapal IPN missing required identifiers');
+    return res.status(200).json({
+      orderNotificationType,
+      orderTrackingId: orderTrackingId ?? '',
+      orderMerchantReference: orderMerchantReference ?? '',
+      status: 500,
     });
-    logger.warn({ ip: req.ip }, 'Rejected Flutterwave webhook with invalid signature');
-    throw ApiError.unauthorized('Invalid webhook signature');
   }
 
-  // Processing is awaited *before* responding. Responding 200 first (the previous behavior) meant
-  // Flutterwave considered the webhook delivered even if processing then failed — leaving the
-  // transaction stuck PENDING forever with no retry, since the provider believed it had succeeded.
-  // Awaiting here means a genuine failure surfaces as a 5xx, and Flutterwave's own retry
-  // mechanism (built for exactly this) takes over. The compare-and-swap in payments.service.ts is
-  // what makes retries safe rather than a double-processing risk.
-  await paymentsService.handleFlutterwaveWebhook(req.body);
-  res.status(200).json({ success: true });
+  try {
+    await paymentsService.handlePesapalIpn(orderTrackingId, orderMerchantReference);
+    res.status(200).json({ orderNotificationType, orderTrackingId, orderMerchantReference, status: 200 });
+  } catch (err) {
+    logger.error({ err, orderTrackingId, orderMerchantReference }, 'Pesapal IPN processing failed');
+    // Still HTTP 200 — Pesapal's retry behavior is driven by the status field in the body, not
+    // the HTTP status code. Returning a 5xx here would not trigger a "nicer" retry; it would just
+    // be a malformed response from Pesapal's perspective.
+    res.status(200).json({ orderNotificationType, orderTrackingId, orderMerchantReference, status: 500 });
+  }
 });
 
 const router = Router();
-router.post('/webhooks/flutterwave', webhookLimiter, webhookHandler);
+router.post('/ipn/pesapal', webhookLimiter, ipnHandler);
 
 export default router;

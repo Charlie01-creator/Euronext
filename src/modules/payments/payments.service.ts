@@ -1,134 +1,104 @@
 import { prisma } from '../../lib/prisma';
 import { logger } from '../../config/logger';
-import { env } from '../../config/env';
 import { createNotification } from '../notifications/notifications.service';
 import { emitToUser } from '../../sockets/socket.server';
 import { roundMoney } from '../../utils/money';
-import * as flutterwave from './flutterwave.provider';
-import { MobileMoneyNetwork } from './flutterwave.provider';
+import * as pesapal from './pesapal.provider';
 
-export type PaymentMethodInput = 'MTN_MOBILE_MONEY' | 'AIRTEL_MONEY' | 'CARD' | 'BANK_TRANSFER';
+const CURRENCY_TO_COUNTRY: Record<string, string> = { UGX: 'UG', KES: 'KE', TZS: 'TZ' };
 
 interface InitiatePaymentParams {
   amountUsd: number;
   currency: string;
-  method: PaymentMethodInput;
-  phone?: string;
   email: string;
   fullName: string;
+  phone?: string;
   txRef: string;
+  description: string;
 }
 
 /**
- * Shared by deposits and package purchases, which previously each duplicated this exact
- * mobile-money-vs-hosted-checkout branch independently. One implementation now, one place to fix
- * if Flutterwave's API shape ever changes.
+ * Shared by deposits and package purchases. Pesapal's hosted checkout shows every available
+ * payment method (mobile money, card, bank) on one page — unlike the previous Flutterwave
+ * integration, the app no longer needs to know or ask which method the user wants up front.
  */
-export async function initiatePayment(params: InitiatePaymentParams): Promise<{ redirectUrl: string | null; providerStatus: string }> {
-  const isMobileMoney = params.method === 'MTN_MOBILE_MONEY' || params.method === 'AIRTEL_MONEY';
+export async function initiatePayment(params: InitiatePaymentParams): Promise<{ redirectUrl: string }> {
+  const [firstName, ...rest] = params.fullName.trim().split(' ');
+  const lastName = rest.join(' ') || firstName;
+  const countryCode = CURRENCY_TO_COUNTRY[params.currency] ?? 'UG';
 
-  if (isMobileMoney) {
-    if (!params.phone) throw new Error('Phone number is required for mobile money payments');
-    const network: MobileMoneyNetwork = params.method === 'MTN_MOBILE_MONEY' ? 'MTN' : 'AIRTEL';
-    const charge = await flutterwave.chargeMobileMoney({
-      amountUsd: params.amountUsd,
-      currency: params.currency,
-      phone: params.phone,
-      email: params.email,
-      fullName: params.fullName,
-      network,
-      txRef: params.txRef,
-    });
-    return { redirectUrl: null, providerStatus: charge.data.status };
-  }
-
-  const checkout = await flutterwave.createHostedCheckout({
-    amountUsd: params.amountUsd,
+  const order = await pesapal.submitOrder({
+    merchantReference: params.txRef,
+    amount: params.amountUsd,
     currency: params.currency,
+    description: params.description,
     email: params.email,
-    fullName: params.fullName,
-    txRef: params.txRef,
-    redirectUrl: `${env.APP_BASE_URL}/nexus-dashboard-mobile.html`,
+    phone: params.phone,
+    firstName: firstName || 'NexusCapital',
+    lastName,
+    countryCode,
   });
-  return { redirectUrl: checkout.data.link, providerStatus: 'pending' };
-}
 
-interface FlutterwaveWebhookPayload {
-  event: string;
-  data: {
-    id: number;
-    tx_ref?: string;
-    reference?: string;
-    status: string;
-    amount: number;
-    currency: string;
-  };
+  return { redirectUrl: order.redirect_url };
 }
 
 /**
- * Records the webhook and dispatches it. Every code path — success, no-op, or failure — leaves a
+ * Records the IPN and dispatches it. Every code path — success, no-op, or failure — leaves a
  * permanent WebhookEvent row (audit trail independent of ephemeral logs), and re-throws on
- * failure so the caller can respond with a 5xx, which is what makes Flutterwave's own retry
- * mechanism kick in for transient failures instead of the event being silently lost.
+ * failure so the caller can respond accordingly.
  */
-export async function handleFlutterwaveWebhook(payload: FlutterwaveWebhookPayload) {
-  const providerRef = payload.data.tx_ref ?? payload.data.reference ?? null;
-
+export async function handlePesapalIpn(orderTrackingId: string, orderMerchantReference: string) {
   const auditRow = await prisma.webhookEvent.create({
     data: {
-      eventType: payload.event,
-      providerRef,
-      signatureValid: true, // the controller only calls this after verifying the signature
+      provider: 'pesapal',
+      eventType: 'IPNCHANGE',
+      providerRef: orderMerchantReference,
+      signatureValid: true, // Pesapal's IPN has no signature to verify — status is confirmed by re-querying GetTransactionStatus directly, which serves the same trust purpose
       status: 'RECEIVED',
-      payload: payload as unknown as object,
+      payload: { orderTrackingId, orderMerchantReference },
     },
   });
 
   try {
-    let outcome: 'PROCESSED' | 'IGNORED' = 'IGNORED';
-
-    if (payload.event === 'charge.completed') {
-      outcome = await handleChargeCompleted(payload.data);
-    } else if (payload.event === 'transfer.completed') {
-      outcome = await handleTransferCompleted(payload.data);
-    } else {
-      logger.info({ event: payload.event }, 'Unhandled Flutterwave webhook event type — ignored');
-    }
-
+    const outcome = await handlePaymentNotification(orderTrackingId, orderMerchantReference);
     await prisma.webhookEvent.update({ where: { id: auditRow.id }, data: { status: outcome } });
+    return outcome;
   } catch (err) {
     await prisma.webhookEvent.update({
       where: { id: auditRow.id },
       data: { status: 'FAILED', errorMessage: (err as Error).message },
     });
-    throw err; // propagate so the controller responds with a 5xx and Flutterwave retries
+    throw err;
   }
 }
 
-async function handleChargeCompleted(data: FlutterwaveWebhookPayload['data']): Promise<'PROCESSED' | 'IGNORED'> {
-  const providerRef = data.tx_ref;
-  if (!providerRef) return 'IGNORED';
-
+async function handlePaymentNotification(
+  orderTrackingId: string,
+  orderMerchantReference: string
+): Promise<'PROCESSED' | 'IGNORED'> {
   const transaction = await prisma.transaction.findUnique({
-    where: { providerRef },
+    where: { providerRef: orderMerchantReference },
     include: { userPackage: true },
   });
   if (!transaction) return 'IGNORED';
 
-  // Never trust the webhook body alone — re-verify the transaction directly with Flutterwave.
-  const verification = await flutterwave.verifyTransaction(String(data.id));
-  const isSuccessful = verification.data.status === 'successful';
+  // Never trust the IPN callback's claim alone — re-verify directly with Pesapal.
+  const verification = await pesapal.getTransactionStatus(orderTrackingId);
+  const isSuccessful = verification.payment_status_description === 'COMPLETED';
+  // PENDING/INVALID aren't terminal — only act on a definitive outcome. A still-pending status
+  // means Pesapal hasn't finished processing yet; there will be a follow-up IPN call later.
+  const isTerminal = ['COMPLETED', 'FAILED', 'INVALID', 'REVERSED'].includes(verification.payment_status_description);
+  if (!isTerminal) return 'IGNORED';
+
   const newStatus = isSuccessful ? 'COMPLETED' : 'FAILED';
 
-  // Everything below — the claim AND the side effects — runs as one atomic DB transaction.
-  // The claim can't be a separate round-trip before this: if the process crashed between "mark
-  // COMPLETED" and "credit the balance", the transaction would be stuck COMPLETED with no money
-  // ever credited. Keeping both in the same transaction means either both happen or neither does.
+  // Everything below — the claim AND the side effects — runs as one atomic DB transaction, for
+  // the same reason as before: a crash between "mark COMPLETED" and "credit the balance" must not
+  // be possible to observe as a half-applied state.
   const result = await prisma.$transaction(async (tx) => {
     // Atomic compare-and-swap: only proceed if THIS call is the one that flips PENDING → terminal.
-    // Two near-simultaneous deliveries of the same webhook (normal for at-least-once delivery, not
-    // exotic) would otherwise both read status === 'PENDING' before either commits, and both would
-    // credit the balance — a real double-processing bug, not a theoretical one.
+    // Pesapal, like any provider, can redeliver the same IPN more than once — this makes a
+    // redelivery a safe no-op instead of a double-credit.
     const claimed = await tx.transaction.updateMany({
       where: { id: transaction.id, status: 'PENDING' },
       data: { status: newStatus },
@@ -188,7 +158,7 @@ async function handleChargeCompleted(data: FlutterwaveWebhookPayload['data']): P
   });
 
   if (result === 'IGNORED') {
-    logger.info({ transactionId: transaction.id }, 'Webhook for already-processed transaction — ignored');
+    logger.info({ transactionId: transaction.id }, 'IPN for already-processed transaction — ignored');
     return 'IGNORED';
   }
 
@@ -202,56 +172,6 @@ async function handleChargeCompleted(data: FlutterwaveWebhookPayload['data']): P
     description: isSuccessful
       ? `Your payment of $${Number(transaction.amountUsd).toLocaleString()} has been confirmed.`
       : `Your payment of $${Number(transaction.amountUsd).toLocaleString()} could not be completed.`,
-  });
-
-  emitToUser(transaction.userId, 'wallet:update', { transactionId: transaction.id, status: newStatus });
-  return 'PROCESSED';
-}
-
-async function handleTransferCompleted(data: FlutterwaveWebhookPayload['data']): Promise<'PROCESSED' | 'IGNORED'> {
-  const providerRef = data.reference;
-  if (!providerRef) return 'IGNORED';
-
-  const transaction = await prisma.transaction.findUnique({ where: { providerRef } });
-  if (!transaction || transaction.type !== 'WITHDRAWAL') return 'IGNORED';
-
-  const isSuccessful = data.status === 'SUCCESSFUL';
-  const newStatus = isSuccessful ? 'COMPLETED' : 'FAILED';
-
-  const result = await prisma.$transaction(async (tx) => {
-    // Same atomic compare-and-swap reasoning as handleChargeCompleted above, and same reason the
-    // refund has to live in this same transaction rather than run afterward.
-    const claimed = await tx.transaction.updateMany({
-      where: { id: transaction.id, status: 'PENDING' },
-      data: { status: newStatus },
-    });
-    if (claimed.count === 0) return 'IGNORED' as const;
-
-    if (!isSuccessful) {
-      // Balance was deducted up-front when the withdrawal was requested; refund it since the payout failed.
-      await tx.user.update({
-        where: { id: transaction.userId },
-        data: { balanceUsd: { increment: transaction.amountUsd } },
-      });
-    }
-
-    return 'PROCESSED' as const;
-  });
-
-  if (result === 'IGNORED') {
-    logger.info({ transactionId: transaction.id }, 'Webhook for already-processed transaction — ignored');
-    return 'IGNORED';
-  }
-
-  await createNotification({
-    userId: transaction.userId,
-    type: 'WITHDRAWAL',
-    icon: isSuccessful ? 'fa-money-bill-transfer' : 'fa-triangle-exclamation',
-    color: isSuccessful ? 'gold' : 'red',
-    title: isSuccessful ? 'Withdrawal processed' : 'Withdrawal failed',
-    description: isSuccessful
-      ? `Your withdrawal of $${Number(transaction.amountUsd).toLocaleString()} has been sent.`
-      : `Your withdrawal of $${Number(transaction.amountUsd).toLocaleString()} failed and has been refunded to your balance.`,
   });
 
   emitToUser(transaction.userId, 'wallet:update', { transactionId: transaction.id, status: newStatus });

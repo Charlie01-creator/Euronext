@@ -2,7 +2,34 @@
 
 All notable changes to the NexusCapital platform, in chronological order.
 
-## [Unreleased] — Enterprise Audit & Hardening Pass (this delivery)
+## [Unreleased] — Payment Provider Migration: Flutterwave → Pesapal
+
+Full replacement of Flutterwave with Pesapal for deposits and package purchases, at the product owner's request. Withdrawals are handled separately (see below) since Pesapal's public API has no disbursement/payout endpoint — confirmed by reviewing their actual API 3.0 documentation before writing any code, rather than assuming feature parity with Flutterwave.
+
+### Payments
+- New `src/modules/payments/pesapal.provider.ts` — OAuth-style bearer token auth (cached in Redis, ~4 min TTL), one-time IPN registration (cached indefinitely, keyed to `APP_BASE_URL`), order submission, and transaction status verification.
+- `flutterwave.provider.ts` deleted entirely.
+- `payments.service.ts` rewritten: `initiatePayment()` now calls Pesapal's `submitOrder` instead of the old mobile-money-vs-hosted-checkout branch — Pesapal shows every payment method (mobile money, card, bank) on one hosted page, so the app no longer needs to know or ask which method the user wants up front. The webhook handler (`handlePesapalIpn`) reuses the same atomic compare-and-swap and persisted-audit-trail pattern the Flutterwave integration had, adapted for Pesapal's status taxonomy (`COMPLETED`/`FAILED`/`INVALID`/`PENDING`/`REVERSED`) and its distinct IPN response contract (a structured JSON body with a `status` field, sent with HTTP 200 regardless of outcome — different from a typical webhook's HTTP-status-driven retry signal).
+- `deposits.routes.ts` and `packages.service.ts`/`packages.validation.ts` simplified — no more `method`/`phone` fields required at request time.
+
+### Withdrawals — now admin-approved, not automated
+- Removed the automated payout API call entirely. Balance is still deducted up front when a user requests a withdrawal (reserving the funds), but nothing calls any external payout API anymore.
+- New `src/modules/admin/` module: `GET /admin/withdrawals` (list pending, oldest first), `POST /admin/withdrawals/:id/approve` (confirms the admin has already sent the money manually), `POST /admin/withdrawals/:id/reject` (refunds the reserved balance). All three require the `ADMIN` role — the first real use of the RBAC infrastructure built in an earlier session, which had existed with nothing to protect.
+- Added `ADMIN_EMAIL` to the seed script — the only way to promote an account to ADMIN, since there's deliberately no self-service "become admin" API route.
+
+### Frontend
+- `Deposit.submit()` simplified to match — no more phone prompt, no more method dropdown (removed from the UI entirely and replaced with a note that method selection happens on Pesapal's page, since leaving a selector that does nothing would be more confusing than not having one).
+- **Wired two flows to the real backend for the first time** — the package purchase flow (`Catalog`) and the withdrawal request flow (`Withdraw`) were both still pure frontend simulations before this session, never connected to any real API despite referencing Flutterwave in their toast messages. Fixing the Flutterwave references alone would have left them cosmetically updated but still fake; both now call the real endpoints. This also required teaching `Catalog.renderCatalog()` to fetch the real package catalog (with real database IDs) instead of only using the hardcoded mock array, since a real purchase call needs a real package ID to reference.
+- Fixed two more stale references found while checking: a "Stripe & Flutterwave Supported" badge (Stripe was never actually integrated at all) and a withdrawal help-text claiming a fixed "2 hours" turnaround that's no longer accurate now that withdrawals are manually reviewed.
+
+### Configuration
+- `.env.example` and `env.ts`: `FLUTTERWAVE_*` variables replaced with `PESAPAL_CONSUMER_KEY`/`PESAPAL_CONSUMER_SECRET`/`PESAPAL_BASE_URL` (sandbox by default) and `ADMIN_EMAIL`.
+- `WebhookEvent.provider` default changed from `"flutterwave"` to `"pesapal"`.
+- README's frontend-to-endpoint mapping table and "out of scope" section updated — the previous version listed "no admin routes" and "no test suite," both now stale.
+
+---
+
+## Previous session — Enterprise Audit & Hardening Pass
 
 ### Security
 - **CSRF protection** added via double-submit cookie pattern (`src/middleware/csrf.middleware.ts`), applied to `/auth/refresh` and `/auth/logout` — the only two endpoints that rely purely on a cookie for authentication. Every other endpoint requires an explicit `Authorization: Bearer` header, which a forged cross-site request can't attach automatically.

@@ -55,6 +55,22 @@ async function main() {
     console.log(`Removed ${removed.count} currency/currencies no longer in use.`);
   }
 
+  // Promote a specific account to ADMIN, if configured. This is the only way to reach the new
+  // admin endpoints (approve/reject withdrawals) — there is deliberately no self-service "become
+  // admin" API route, since that would be a serious privilege-escalation risk. Set ADMIN_EMAIL in
+  // .env to the email of an account that already exists (register it first, then re-run the seed).
+  if (process.env.ADMIN_EMAIL) {
+    const admin = await prisma.user.updateMany({
+      where: { email: process.env.ADMIN_EMAIL },
+      data: { role: 'ADMIN' },
+    });
+    if (admin.count > 0) {
+      console.log(`Promoted ${process.env.ADMIN_EMAIL} to ADMIN.`);
+    } else {
+      console.warn(`ADMIN_EMAIL was set to ${process.env.ADMIN_EMAIL}, but no account with that email exists yet — register it first, then re-run the seed.`);
+    }
+  }
+
   console.log('Seed complete.');
 }
 

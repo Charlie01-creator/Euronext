@@ -41,8 +41,8 @@ npx prisma migrate deploy && npx prisma db seed
 ```
 This runs automatically on every deploy — no separate terminal session needed, works from the Railway web dashboard alone.
 
-### 7. Point Flutterwave's webhook at the real URL
-Flutterwave dashboard → **Settings → Webhooks** → `https://your-app.up.railway.app/api/v1/payments/webhooks/flutterwave`, plus the same `FLUTTERWAVE_WEBHOOK_SECRET_HASH` you generated above.
+### 7. Pesapal's IPN registration happens automatically — no dashboard step needed
+Unlike Flutterwave's webhook setup, Pesapal's IPN URL is registered by the app itself the first time it needs one (`ensureIpnRegistered()` in `pesapal.provider.ts`), using `APP_BASE_URL`. Just make sure `APP_BASE_URL` is set correctly to your real domain before the first deposit is attempted — if it changes later, delete the `pesapal:ipn_id` key from Redis so the app re-registers against the new URL.
 
 ### 8. Visit your domain — done.
 
@@ -82,4 +82,4 @@ This backend needs a persistent Node process, a real Postgres connection, and a 
 2. `GET /health/ready` returns `200` with `{"database": true, "redis": true}` — if either is `false`, that connection isn't actually working despite the app being "up"
 3. `GET /docs` loads the Swagger UI
 4. Register a real test account through the actual UI, not just the API directly
-5. Make a real (small, test-mode) Flutterwave deposit and confirm the webhook actually lands — check the `WebhookEvent` table for a `PROCESSED` row, not just that the payment succeeded on Flutterwave's side
+5. Make a real (small, sandbox-mode) Pesapal deposit and confirm the IPN actually lands — check the `WebhookEvent` table for a `PROCESSED` row, not just that the payment succeeded on Pesapal's side

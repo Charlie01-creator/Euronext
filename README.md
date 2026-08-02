@@ -70,8 +70,8 @@ The dashboard's `Currency`, `Router`, `Deposit`, `Withdraw`, `Catalog`, `Referra
 | `PACKAGE_CATALOG` constant / `Catalog.renderCatalog()` | `GET` replaces the hardcoded array | `GET /api/v1/packages` |
 | "Active Package" subview | `GET` | `GET /api/v1/packages/active` |
 | `PACKAGE_HISTORY` constant / `Catalog.renderHistory()` | `GET` | `GET /api/v1/packages/history` |
-| `Catalog.confirmPayment()` / `Catalog.payWithMobileMoney()` | `POST`, send `Idempotency-Key` header (e.g. a fresh UUID per tap) | `POST /api/v1/packages/:id/purchase` |
-| `Deposit.submit()` | `POST`, `Idempotency-Key` header required | `POST /api/v1/deposits` |
+| `Catalog.confirmPayment()` | `POST`, send `Idempotency-Key` header, redirects to Pesapal's hosted checkout | `POST /api/v1/packages/:id/purchase` |
+| `Deposit.submit()` | `POST`, `Idempotency-Key` header required, redirects to Pesapal's hosted checkout | `POST /api/v1/deposits` |
 | `Withdraw.submit()` | `POST`, `Idempotency-Key` header required | `POST /api/v1/withdrawals` |
 | `REFERRALS` / `TOP_PERFORMERS` constants, `Referrals.renderTable()` | `GET` | `GET /api/v1/referrals` and `GET /api/v1/referrals/leaderboard` |
 | `NOTIFICATIONS` constant, `Notifications.renderList()` | `GET` on load, then listen for the `notification:new` socket event for real-time pushes | `GET /api/v1/notifications` |
@@ -81,7 +81,8 @@ The dashboard's `Currency`, `Router`, `Deposit`, `Withdraw`, `Catalog`, `Referra
 | Login History table | `GET` | `GET /api/v1/security/login-history` |
 | 2FA toggle | `PATCH` | `PATCH /api/v1/security/two-factor` |
 | `Currency.RATES` constant | `GET` once on boot instead of hardcoding | `GET /api/v1/currency/rates` |
-| Toast after Flutterwave redirect (card/bank) | n/a — Flutterwave calls this directly | `POST /api/v1/payments/webhooks/flutterwave` |
+| Redirect to Pesapal hosted checkout (deposits/purchases) | n/a — Pesapal calls this directly after payment | `POST /api/v1/payments/ipn/pesapal` |
+| Withdrawal approval (admin only, no frontend UI yet — see below) | `GET`/`POST`, requires ADMIN role | `GET /api/v1/admin/withdrawals`, `POST /api/v1/admin/withdrawals/:id/approve`, `POST /api/v1/admin/withdrawals/:id/reject` |
 
 ### Real-time updates (Socket.IO)
 
@@ -142,6 +143,7 @@ npx prisma migrate dev --name enterprise_hardening
 
 ## What's intentionally out of scope here
 
-- **Real KYC/AML verification** — `kycStatus` is a field you can set, not an integration with an identity verification provider. Flutterwave will require your business to complete KYB before enabling real transactions.
-- **Admin dashboard/API** — this backend has the data model to support one (approve withdrawals, manage packages) but no admin routes are included; add a `role` field to `User` and an `admin` module following the same pattern as the other modules.
-- **Automated tests** — the codebase is structured to be testable (services are pure functions decoupled from Express), but no test suite is included.
+- **Real KYC/AML verification** — `kycStatus` is a field you can set, not an integration with an identity verification provider. Pesapal will require your business to complete their merchant verification before enabling real (non-sandbox) transactions.
+- **Admin UI** — the admin *API* exists (`GET/POST /api/v1/admin/withdrawals`, protected by the ADMIN role) for reviewing and approving/rejecting withdrawal requests, since Pesapal has no payout API and the product owner wants to personally approve every withdrawal. There's no frontend screen for this yet — use the Swagger UI at `/docs`, or a REST client, until one is built. Promote an account to ADMIN by setting `ADMIN_EMAIL` in `.env` and re-running `npm run prisma:seed`.
+- **Real disbursement/payout automation** — Pesapal's public API only collects payments; it has no documented endpoint for paying money out to end users. Withdrawals are deliberately manual: an admin sends the money through their own channel, then marks it approved in the app.
+- **Test coverage is a real start, not comprehensive** — `tests/` covers pure-logic utilities (money rounding, phone normalization, pagination). Nothing yet tests the HTTP layer, database interactions, or the Pesapal IPN flow — those need a test database and a mocked Pesapal response.

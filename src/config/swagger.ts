@@ -32,6 +32,7 @@ export const swaggerSpec = swaggerJSDoc({
       { name: 'Security' },
       { name: 'Currency' },
       { name: 'Payments' },
+      { name: 'Admin' },
     ],
   },
   apis: ['./src/modules/**/*.ts'],

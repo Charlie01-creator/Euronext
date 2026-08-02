@@ -29,11 +29,6 @@ export async function purchasePackage(userId: string, packageId: string, input: 
   const pkg = await prisma.package.findUnique({ where: { id: packageId } });
   if (!pkg || !pkg.isActive) throw ApiError.notFound('Package not found or no longer available');
 
-  const isMobileMoney = input.method === 'MTN_MOBILE_MONEY' || input.method === 'AIRTEL_MONEY';
-  if (isMobileMoney && !input.phone) {
-    throw ApiError.badRequest('Phone number is required for mobile money payments');
-  }
-
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   const principal = Number(pkg.minAmountUsd);
   const projectedReturn = roundMoney(principal + Number(pkg.fixedReturnUsd));
@@ -46,7 +41,7 @@ export async function purchasePackage(userId: string, packageId: string, input: 
         packageId: pkg.id,
         principalUsd: principal,
         projectedReturnUsd: projectedReturn,
-        status: 'PENDING', // flips to ACTIVE once the Flutterwave webhook confirms payment, or CANCELLED on failure
+        status: 'PENDING', // flips to ACTIVE once the Pesapal IPN confirms payment, or CANCELLED on failure
         maturesAt,
       },
     });
@@ -58,27 +53,25 @@ export async function purchasePackage(userId: string, packageId: string, input: 
         userId,
         type: 'PACKAGE_PURCHASE',
         status: 'PENDING',
-        method: input.method,
         amountUsd: principal,
         currency: input.currency,
         userPackageId: userPackage.id,
         providerRef: txRef,
-        destination: input.phone ? { phone: input.phone } : undefined,
       },
     });
 
     return { userPackage, transaction };
   });
 
-  const { redirectUrl, providerStatus } = await initiatePayment({
+  const { redirectUrl } = await initiatePayment({
     amountUsd: principal,
     currency: input.currency,
-    method: input.method,
-    phone: input.phone,
     email: user.email,
     fullName: user.fullName,
+    phone: user.phone ?? undefined,
     txRef: transaction.providerRef!,
+    description: `${pkg.name} package purchase`,
   });
 
-  return { transaction, userPackage, redirectUrl, providerStatus };
+  return { transaction, userPackage, redirectUrl };
 }

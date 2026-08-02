@@ -46,6 +46,7 @@ import analyticsRoutes from './modules/analytics/analytics.routes';
 import securityRoutes from './modules/security/security.routes';
 import currencyRoutes from './modules/currency/currency.routes';
 import paymentsRoutes from './modules/payments/payments.routes';
+import adminRoutes from './modules/admin/admin.routes';
 
 export function createApp(): Express {
   const app = express();
@@ -125,6 +126,7 @@ export function createApp(): Express {
   app.use(`${base}/security`, securityRoutes);
   app.use(`${base}/currency`, currencyRoutes);
   app.use(`${base}/payments`, paymentsRoutes);
+  app.use(`${base}/admin`, adminRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -65,9 +65,11 @@ Checked items are genuinely done and verified within this environment's constrai
 
 ## External integrations
 
-- [x] Flutterwave fully wired for mobile money charges, hosted checkout, and payouts
+- [x] Pesapal fully wired for deposits and package purchases via hosted checkout
+- [x] Withdrawals redesigned as admin-approved (Pesapal has no disbursement API) — real admin endpoints built and protected by the RBAC role that previously had nothing to enforce
 - [ ] No real SMS/email provider wired for password reset or email verification — tokens are generated correctly but never actually delivered
-- [ ] Flutterwave KYB (business verification) required before live (non-test) keys are available — this is on Flutterwave's side, not something this codebase can do for you
+- [ ] Pesapal merchant verification required before live (non-sandbox) keys are usable for real transactions — this is on Pesapal's side, not something this codebase can do for you
+- [ ] No admin frontend UI yet — withdrawal approval currently requires using Swagger (`/docs`) or a REST client directly
 
 ## Documentation
 

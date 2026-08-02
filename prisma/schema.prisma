@@ -287,7 +287,7 @@ model CurrencyRate {
 // ──────────────────────────────────────────────────────────────────
 model WebhookEvent {
   id             String                  @id @default(uuid())
-  provider       String                  @default("flutterwave")
+  provider       String                  @default("pesapal")
   eventType      String
   providerRef    String?
   signatureValid Boolean
