@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const purchasePackageSchema = z.object({
   body: z.object({
     currency: z.string().length(3).default('USD'),
+    phone: z.string().min(7).max(20).optional(),
   }),
   query: z.object({}).optional(),
   params: z.object({ id: z.string().uuid() }),

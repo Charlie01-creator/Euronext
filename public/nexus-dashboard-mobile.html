@@ -1218,8 +1218,12 @@ body.external-redirecting{transition:opacity .3s ease;opacity:0}
   <div id="paymentConfirmStep">
     <div class="qa-title" id="paymentTitle">Confirm Purchase</div>
     <div class="qa-sub" id="paymentSub">Complete your purchase</div>
+    <div class="field" style="margin:var(--sp-4) 0">
+      <label>Phone Number</label>
+      <input type="tel" id="paymentPhone" placeholder="e.g. 077 123 4567">
+    </div>
     <button class="btn btn--primary btn--full" onclick="Catalog.confirmPayment()"><i class="fa-solid fa-lock"></i> Continue to Secure Checkout</button>
-    <p style="font-size:11px;color:var(--white-40);line-height:1.6;margin-top:12px"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>You'll be redirected to choose mobile money, card, or bank transfer. We never see or store your payment details.</p>
+    <p style="font-size:11px;color:var(--white-40);line-height:1.6;margin-top:12px"><i class="fa-solid fa-circle-info" style="margin-right:4px"></i>You'll choose mobile money, card, or bank transfer on the next screen. Your PIN is entered there or sent directly to your phone — never here.</p>
   </div>
 </div>
 
@@ -2055,6 +2059,8 @@ const Catalog = (() => {
     document.getElementById('paymentSheet').classList.remove('open');
   }
   async function confirmPayment() {
+    const phone = document.getElementById('paymentPhone').value.trim();
+
     // Demo mode (no backend session) — keep the original simulated confirmation.
     if (!Api.getToken() || !current.id) {
       Toast.show(`Redirecting to secure checkout for your ${Currency.format(current.amount)} purchase of the ${current.name} package…`, 'fa-lock');
@@ -2063,7 +2069,7 @@ const Catalog = (() => {
     }
 
     try {
-      const json = await Api.post(`/packages/${current.id}/purchase`, { currency: Currency.get() }, { 'Idempotency-Key': crypto.randomUUID() });
+      const json = await Api.post(`/packages/${current.id}/purchase`, { currency: Currency.get(), phone: phone || undefined }, { 'Idempotency-Key': crypto.randomUUID() });
       document.body.classList.add('external-redirecting');
       setTimeout(() => { window.location.href = json.data.redirectUrl; }, 260);
     } catch (err) {

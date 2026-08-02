@@ -68,7 +68,7 @@ export async function purchasePackage(userId: string, packageId: string, input: 
     currency: input.currency,
     email: user.email,
     fullName: user.fullName,
-    phone: user.phone ?? undefined,
+    phone: input.phone ?? user.phone ?? undefined,
     txRef: transaction.providerRef!,
     description: `${pkg.name} package purchase`,
   });
